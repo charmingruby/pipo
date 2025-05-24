@@ -1,22 +1,20 @@
 package main
 
 import (
-	"encoding/csv"
+	"context"
 	"errors"
 	"flag"
-	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/charmingruby/pipo/config"
+	"github.com/charmingruby/pipo/internal/sentiment"
 	"github.com/charmingruby/pipo/pkg/logger"
 	"github.com/charmingruby/pipo/pkg/redis"
 	"github.com/joho/godotenv"
 )
 
-const (
-	MAX_RECORDS = 241145
-)
+// TODO: Should be transformed into a cronjob on K8s?
 
 func main() {
 	logger := logger.New()
@@ -52,14 +50,19 @@ func main() {
 
 	logger.Info("redis connected")
 
-	records, err := readCsvFile("./dataset/sentiment_data.csv", args.Records)
-	if err != nil {
-		logger.Error("failed to read csv file", "error", err)
+	service := sentiment.NewService()
+
+	if err := service.DispatchRawSentimentData(
+		context.Background(),
+		sentiment.DispatchRawSentimentDataInput{
+			FilePath: args.FilePath,
+			Records:  args.Records,
+		},
+	); err != nil {
+		logger.Error("failed to dispatch raw sentiment data", "error", err)
 
 		os.Exit(1)
 	}
-
-	fmt.Println(records)
 }
 
 type Args struct {
@@ -68,38 +71,19 @@ type Args struct {
 }
 
 func parseArgs() (Args, error) {
+	maxRecords := 241145
+
 	filePath := flag.String("file", "./dataset/sentiment_data.csv", "path to the csv file, default is ./dataset/sentiment_data.csv")
-	records := flag.Int("records", MAX_RECORDS, "number of records to read, max value is "+strconv.Itoa(MAX_RECORDS))
+	records := flag.Int("records", maxRecords, "number of records to read, max value is "+strconv.Itoa(maxRecords))
 
 	flag.Parse()
 
-	if *records > MAX_RECORDS {
-		return Args{}, errors.New("records must be less than or equal to " + strconv.Itoa(MAX_RECORDS))
+	if *records > maxRecords {
+		return Args{}, errors.New("records must be less than or equal to " + strconv.Itoa(maxRecords))
 	}
 
 	return Args{
 		FilePath: *filePath,
 		Records:  *records,
 	}, nil
-}
-
-func readCsvFile(filePath string, amountOfRecords int) ([][]string, error) {
-	f, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	csvReader := csv.NewReader(f)
-
-	records, err := csvReader.ReadAll()
-	if err != nil {
-		return nil, err
-	}
-
-	if amountOfRecords > 0 {
-		records = records[1 : amountOfRecords+1]
-	}
-
-	return records, nil
 }
