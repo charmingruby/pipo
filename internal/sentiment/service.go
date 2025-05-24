@@ -2,16 +2,20 @@ package sentiment
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/charmingruby/pipo/pkg/csv"
+	"github.com/charmingruby/pipo/pkg/logger"
 )
 
 type Service struct {
+	logger *logger.Logger
 }
 
-func NewService() *Service {
-	return &Service{}
+func NewService(logger *logger.Logger) *Service {
+	return &Service{
+		logger: logger,
+	}
 }
 
 type DispatchRawSentimentDataInput struct {
@@ -28,9 +32,30 @@ func (s *Service) DispatchRawSentimentData(
 		return err
 	}
 
-	for _, record := range records {
-		fmt.Println(record)
+	rawSentimentData := make([]RawSentiment, len(records))
+	failedData := make([]string, 0)
+
+	for idx, record := range records {
+		id, err := strconv.Atoi(record[0])
+		if err != nil {
+			failedData = append(failedData, record[0])
+			continue
+		}
+
+		sentiment, err := strconv.Atoi(record[2])
+		if err != nil {
+			failedData = append(failedData, record[2])
+			continue
+		}
+
+		rawSentimentData[idx] = RawSentiment{
+			ID:        id,
+			Comment:   record[2],
+			Sentiment: sentiment,
+		}
 	}
+
+	s.logger.Info("failed sentiment data parsing", "data", failedData)
 
 	return nil
 }

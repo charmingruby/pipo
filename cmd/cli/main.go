@@ -50,7 +50,7 @@ func main() {
 
 	logger.Info("redis connected")
 
-	service := sentiment.NewService()
+	service := sentiment.NewService(logger)
 
 	if err := service.DispatchRawSentimentData(
 		context.Background(),
