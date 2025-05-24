@@ -2,19 +2,23 @@ package sentiment
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 
+	"github.com/charmingruby/pipo/internal/shared/messaging"
 	"github.com/charmingruby/pipo/pkg/csv"
 	"github.com/charmingruby/pipo/pkg/logger"
 )
 
 type Service struct {
 	logger *logger.Logger
+	broker messaging.Broker
 }
 
-func NewService(logger *logger.Logger) *Service {
+func NewService(logger *logger.Logger, broker messaging.Broker) *Service {
 	return &Service{
 		logger: logger,
+		broker: broker,
 	}
 }
 
@@ -50,12 +54,25 @@ func (s *Service) DispatchRawSentimentData(
 
 		rawSentimentData[idx] = RawSentiment{
 			ID:        id,
-			Comment:   record[2],
+			Comment:   record[1],
 			Sentiment: sentiment,
+		}
+
+		message, err := json.Marshal(rawSentimentData[idx])
+		if err != nil {
+			failedData = append(failedData, err.Error())
+			continue
+		}
+
+		if err := s.broker.Publish(ctx, "sentiment", message); err != nil {
+			failedData = append(failedData, err.Error())
+			continue
 		}
 	}
 
-	s.logger.Info("failed sentiment data parsing", "data", failedData)
+	s.logger.Info("sentiments published", "count", len(rawSentimentData))
+
+	s.logger.Error("failed sentiment data parsing", "data", failedData)
 
 	return nil
 }

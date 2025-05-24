@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmingruby/pipo/config"
 	"github.com/charmingruby/pipo/internal/sentiment"
+	"github.com/charmingruby/pipo/internal/shared/messaging"
 	"github.com/charmingruby/pipo/pkg/logger"
 	"github.com/charmingruby/pipo/pkg/redis"
 	"github.com/joho/godotenv"
@@ -41,7 +42,7 @@ func main() {
 
 	logger.Info("config loaded")
 
-	_, err = redis.New(cfg.RedisURL)
+	redisClient, err := redis.New(cfg.RedisURL)
 	if err != nil {
 		logger.Error("failed to connect to redis", "error", err)
 
@@ -50,7 +51,9 @@ func main() {
 
 	logger.Info("redis connected")
 
-	service := sentiment.NewService(logger)
+	redisBroker := messaging.NewRedisStream(redisClient)
+
+	service := sentiment.NewService(logger, redisBroker)
 
 	if err := service.DispatchRawSentimentData(
 		context.Background(),
