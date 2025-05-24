@@ -1,4 +1,4 @@
-package sentiment
+package model
 
 type RawSentiment struct {
 	ID        int    `json:"id"`

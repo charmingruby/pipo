@@ -1,42 +1,29 @@
-package sentiment
+package service
 
 import (
 	"context"
 	"encoding/json"
 	"strconv"
 
-	"github.com/charmingruby/pipo/internal/shared/messaging"
+	"github.com/charmingruby/pipo/internal/sentiment/model"
 	"github.com/charmingruby/pipo/pkg/csv"
-	"github.com/charmingruby/pipo/pkg/logger"
 )
 
-type Service struct {
-	logger *logger.Logger
-	broker messaging.Broker
-}
-
-func NewService(logger *logger.Logger, broker messaging.Broker) *Service {
-	return &Service{
-		logger: logger,
-		broker: broker,
-	}
-}
-
-type DispatchRawSentimentDataInput struct {
+type ProcessRawDataInput struct {
 	FilePath string
 	Records  int
 }
 
-func (s *Service) DispatchRawSentimentData(
+func (s *Service) ProcessRawData(
 	ctx context.Context,
-	in DispatchRawSentimentDataInput,
+	in ProcessRawDataInput,
 ) error {
 	records, err := csv.ReadFile(in.FilePath, in.Records)
 	if err != nil {
 		return err
 	}
 
-	rawSentimentData := make([]RawSentiment, len(records))
+	rawSentimentData := make([]model.RawSentiment, len(records))
 	failedData := make([]string, 0)
 
 	for idx, record := range records {
@@ -52,11 +39,7 @@ func (s *Service) DispatchRawSentimentData(
 			continue
 		}
 
-		rawSentimentData[idx] = RawSentiment{
-			ID:        id,
-			Comment:   record[1],
-			Sentiment: sentiment,
-		}
+		rawSentimentData[idx] = *model.NewRawSentiment(id, record[1], sentiment)
 
 		message, err := json.Marshal(rawSentimentData[idx])
 		if err != nil {

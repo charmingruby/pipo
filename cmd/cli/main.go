@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/charmingruby/pipo/config"
-	"github.com/charmingruby/pipo/internal/sentiment"
+	"github.com/charmingruby/pipo/internal/sentiment/service"
 	"github.com/charmingruby/pipo/internal/shared/messaging"
 	"github.com/charmingruby/pipo/pkg/logger"
 	"github.com/charmingruby/pipo/pkg/redis"
@@ -53,16 +53,16 @@ func main() {
 
 	redisBroker := messaging.NewRedisStream(redisClient)
 
-	service := sentiment.NewService(logger, redisBroker)
+	sentimentService := service.NewService(logger, redisBroker)
 
-	if err := service.DispatchRawSentimentData(
+	if err := sentimentService.ProcessRawData(
 		context.Background(),
-		sentiment.DispatchRawSentimentDataInput{
+		service.ProcessRawDataInput{
 			FilePath: args.FilePath,
 			Records:  args.Records,
 		},
 	); err != nil {
-		logger.Error("failed to dispatch raw sentiment data", "error", err)
+		logger.Error("failed to process raw sentiment data", "error", err)
 
 		os.Exit(1)
 	}
