@@ -4,7 +4,7 @@ import "github.com/go-redis/redis"
 
 func New(url string) (*redis.Client, error) {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     url,
 		Password: "",
 		DB:       0,
 	})
