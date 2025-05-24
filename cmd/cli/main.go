@@ -23,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("config loaded", "config", cfg)
+	logger.Info("config loaded")
 
 	_, err = redis.New(cfg.RedisURL)
 	if err != nil {
