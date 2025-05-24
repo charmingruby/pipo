@@ -3,7 +3,8 @@ package config
 import "github.com/caarlos0/env"
 
 type Config struct {
-	RedisURL string `env:"REDIS_URL,required"`
+	RedisURL               string `env:"REDIS_URL,required"`
+	SentimentIngestedTopic string `env:"SENTIMENT_INGESTED_TOPIC,required"`
 }
 
 func New() (*Config, error) {

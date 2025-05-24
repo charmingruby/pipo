@@ -9,14 +9,15 @@ import (
 	"github.com/charmingruby/pipo/pkg/csv"
 )
 
-type ProcessRawDataInput struct {
+type IngestRawDataInput struct {
 	FilePath string
 	Records  int
+	Topic    string
 }
 
-func (s *Service) ProcessRawData(
+func (s *Service) IngestRawData(
 	ctx context.Context,
-	in ProcessRawDataInput,
+	in IngestRawDataInput,
 ) error {
 	records, err := csv.ReadFile(in.FilePath, in.Records)
 	if err != nil {
@@ -47,7 +48,7 @@ func (s *Service) ProcessRawData(
 			continue
 		}
 
-		if err := s.broker.Publish(ctx, "sentiment", message); err != nil {
+		if err := s.broker.Publish(ctx, in.Topic, message); err != nil {
 			failedData = append(failedData, err.Error())
 			continue
 		}
