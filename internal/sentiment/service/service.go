@@ -6,13 +6,15 @@ import (
 )
 
 type Service struct {
-	logger *logger.Logger
-	broker messaging.Broker
+	logger               *logger.Logger
+	broker               messaging.Broker
+	sentimentIngestTopic string
 }
 
-func NewService(logger *logger.Logger, broker messaging.Broker) *Service {
+func NewService(logger *logger.Logger, broker messaging.Broker, sentimentIngestTopic string) *Service {
 	return &Service{
-		logger: logger,
-		broker: broker,
+		logger:               logger,
+		broker:               broker,
+		sentimentIngestTopic: sentimentIngestTopic,
 	}
 }

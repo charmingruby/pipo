@@ -53,14 +53,13 @@ func main() {
 
 	redisBroker := messaging.NewRedisStream(redisClient)
 
-	sentimentService := service.NewService(logger, redisBroker)
+	sentimentService := service.NewService(logger, redisBroker, cfg.SentimentIngestedTopic)
 
-	if err := sentimentService.IngestRawData(
+	if _, err := sentimentService.IngestRawData(
 		context.Background(),
 		service.IngestRawDataInput{
 			FilePath: args.FilePath,
 			Records:  args.Records,
-			Topic:    cfg.SentimentIngestedTopic,
 		},
 	); err != nil {
 		logger.Error("failed to process raw sentiment data", "error", err)

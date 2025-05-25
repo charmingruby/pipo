@@ -4,59 +4,112 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/charmingruby/pipo/internal/sentiment/model"
+	"github.com/charmingruby/pipo/internal/shared/concurrency"
 	"github.com/charmingruby/pipo/pkg/csv"
 )
 
 type IngestRawDataInput struct {
 	FilePath string
 	Records  int
-	Topic    string
+}
+
+type IngestRawDataOutput struct {
+	ProcessedData []model.RawSentiment
+	Errors        []error
 }
 
 func (s *Service) IngestRawData(
 	ctx context.Context,
 	in IngestRawDataInput,
-) error {
+) (IngestRawDataOutput, error) {
 	records, err := csv.ReadFile(in.FilePath, in.Records)
 	if err != nil {
-		return err
+		return IngestRawDataOutput{}, err
 	}
 
-	rawSentimentData := make([]model.RawSentiment, len(records))
-	failedData := make([]string, 0)
+	ingestedData := make([]model.RawSentiment, 0)
+	processingErrors := make([]error, 0)
 
-	for idx, record := range records {
-		id, err := strconv.Atoi(record[0])
-		if err != nil {
-			failedData = append(failedData, record[0])
-			continue
+	wp := concurrency.NewWorkerPool(s, 10)
+
+	wp.Run(ctx)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		for msg := range wp.Output() {
+			ingestedData = append(ingestedData, msg.Data)
 		}
+	}()
 
-		sentiment, err := strconv.Atoi(record[2])
-		if err != nil {
-			failedData = append(failedData, record[2])
-			continue
+	go func() {
+		defer wg.Done()
+		for err := range wp.Error() {
+			processingErrors = append(processingErrors, err)
 		}
+	}()
 
-		rawSentimentData[idx] = *model.NewRawSentiment(id, record[1], sentiment)
-
-		message, err := json.Marshal(rawSentimentData[idx])
-		if err != nil {
-			failedData = append(failedData, err.Error())
-			continue
-		}
-
-		if err := s.broker.Publish(ctx, in.Topic, message); err != nil {
-			failedData = append(failedData, err.Error())
-			continue
-		}
+	if err := wp.SendBatch(ctx, []ingestRawDataProcessorInput(records)); err != nil {
+		return IngestRawDataOutput{}, err
 	}
 
-	s.logger.Info("sentiments published", "count", len(rawSentimentData))
+	if err := wp.Close(); err != nil {
+		return IngestRawDataOutput{}, err
+	}
 
-	s.logger.Error("failed sentiment data parsing", "data", failedData)
+	wg.Wait()
 
-	return nil
+	s.logger.Info(
+		"ingested data",
+		"total-records", len(records),
+		"success-count", len(ingestedData),
+		"errors-count", len(processingErrors),
+	)
+
+	return IngestRawDataOutput{
+		ProcessedData: ingestedData,
+		Errors:        processingErrors,
+	}, nil
+}
+
+type ingestRawDataProcessorInput = []string
+
+type ingestRawDataProcessorOutput struct {
+	Data model.RawSentiment
+}
+
+func (s *Service) Process(record ingestRawDataProcessorInput) (ingestRawDataProcessorOutput, error) {
+	id, err := strconv.Atoi(record[0])
+	if err != nil {
+		return ingestRawDataProcessorOutput{}, err
+	}
+
+	sentiment, err := strconv.Atoi(record[2])
+	if err != nil {
+		return ingestRawDataProcessorOutput{}, err
+	}
+
+	rawSentimentData := model.NewRawSentiment(id, record[1], sentiment)
+
+	message, err := json.Marshal(rawSentimentData)
+	if err != nil {
+		return ingestRawDataProcessorOutput{}, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := s.broker.Publish(ctx, s.sentimentIngestTopic, message); err != nil {
+		return ingestRawDataProcessorOutput{}, err
+	}
+
+	return ingestRawDataProcessorOutput{
+		Data: *rawSentimentData,
+	}, nil
 }
