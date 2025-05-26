@@ -11,10 +11,8 @@ var (
 	ErrWorkerPoolClosed       = errors.New("worker pool is closed")
 )
 
-// Processor T is the type of the message to be processed, R is the type of the result
-type Processor[T any, R any] interface {
-	Process(msg T) (R, error)
-}
+// ProcessFunc defines a function type that processes a message of type T and returns a result of type R
+type ProcessFunc[T any, R any] func(msg T) (R, error)
 
 // WorkerPool implements a concurrent worker pool pattern for processing messages.
 // It allows processing multiple messages concurrently using a specified number of workers.
@@ -22,22 +20,12 @@ type Processor[T any, R any] interface {
 //
 // Example usage:
 //
-//	type TextProcessor struct{}
-//
-//	type Input struct{
-//		Text string
-//	}
-//
-//	type Output struct{
-//		ProcessedText string
-//	}
-//
-//	func (p *TextProcessor) Process(msg Input) (Output, error) {
-//		return Output{ProcessedText: strings.ToUpper(msg.Text)}, nil
-//	}
-//
 //	func main() {
-//		wp := NewWorkerPool(&TextProcessor{}, 10)
+//		processFunc := func(msg Input) (Output, error) {
+//			return Output{ProcessedText: strings.ToUpper(msg.Text)}, nil
+//		}
+//
+//		wp := NewWorkerPool(processFunc, 10)
 //
 //		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 //		defer cancel()
@@ -94,15 +82,15 @@ type WorkerPool[T any, R any] struct {
 	mu sync.Mutex
 	// WaitGroup for the workers
 	wg sync.WaitGroup
-	// Processor for the worker pool
-	proc Processor[T, R]
+	// Processing function
+	processFunc ProcessFunc[T, R]
 	// Concurrency level, represents the number of workers
 	concurrency int
 	// Closed flag, used to signal when the worker pool is closed
 	closed bool
 }
 
-func NewWorkerPool[T any, R any](proc Processor[T, R], concurrency int) *WorkerPool[T, R] {
+func NewWorkerPool[T any, R any](processFunc ProcessFunc[T, R], concurrency int) *WorkerPool[T, R] {
 	return &WorkerPool[T, R]{
 		inCh:        make(chan T, concurrency*2),
 		outCh:       make(chan R, concurrency*2),
@@ -111,7 +99,7 @@ func NewWorkerPool[T any, R any](proc Processor[T, R], concurrency int) *WorkerP
 		mu:          sync.Mutex{},
 		wg:          sync.WaitGroup{},
 		closed:      false,
-		proc:        proc,
+		processFunc: processFunc,
 		concurrency: concurrency,
 	}
 }
@@ -135,7 +123,7 @@ func (wp *WorkerPool[T, R]) Run(ctx context.Context) {
 								return
 							}
 
-							processedMsg, err := wp.proc.Process(msg)
+							processedMsg, err := wp.processFunc(msg)
 							if err != nil {
 								wp.errCh <- err
 								continue
@@ -151,7 +139,7 @@ func (wp *WorkerPool[T, R]) Run(ctx context.Context) {
 						return
 					}
 
-					processedMsg, err := wp.proc.Process(msg)
+					processedMsg, err := wp.processFunc(msg)
 					if err != nil {
 						wp.errCh <- err
 						continue

@@ -12,7 +12,15 @@ import (
 
 func Test_WorkerPool(t *testing.T) {
 	t.Run("should process messages in concurrently", func(t *testing.T) {
-		wp := NewWorkerPool(&dummyProcessor{}, 10)
+		processFunc := func(msg dummyInput) (dummyOutput, error) {
+			return dummyOutput{
+				ID:     msg.ID,
+				Text:   msg.RawText,
+				Status: "processed",
+			}, nil
+		}
+
+		wp := NewWorkerPool(processFunc, 10)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -66,8 +74,6 @@ func Test_WorkerPool(t *testing.T) {
 	})
 }
 
-type dummyProcessor struct{}
-
 type dummyInput struct {
 	ID      int
 	RawText string
@@ -77,12 +83,4 @@ type dummyOutput struct {
 	ID     int
 	Text   string
 	Status string
-}
-
-func (p *dummyProcessor) Process(msg dummyInput) (dummyOutput, error) {
-	return dummyOutput{
-		ID:     msg.ID,
-		Text:   msg.RawText,
-		Status: "processed",
-	}, nil
 }
