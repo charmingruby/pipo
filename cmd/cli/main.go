@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/charmingruby/pipo/config"
-	"github.com/charmingruby/pipo/internal/sentiment/service"
-	"github.com/charmingruby/pipo/internal/shared/messaging"
+	"github.com/charmingruby/pipo/internal/sentiment/core/service"
+	"github.com/charmingruby/pipo/internal/shared/broker"
 	"github.com/charmingruby/pipo/pkg/logger"
 	"github.com/charmingruby/pipo/pkg/redis"
 	"github.com/joho/godotenv"
@@ -51,9 +51,9 @@ func main() {
 
 	logger.Info("redis connected")
 
-	redisBroker := messaging.NewRedisStream(redisClient)
+	redisBroker := broker.NewRedisStream(redisClient)
 
-	sentimentService := service.NewService(logger, redisBroker, cfg.SentimentIngestedTopic)
+	sentimentService := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
 
 	if _, err := sentimentService.IngestRawData(
 		context.Background(),

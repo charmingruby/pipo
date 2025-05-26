@@ -12,7 +12,7 @@ var (
 )
 
 // ProcessFunc defines a function type that processes a message of type T and returns a result of type R
-type ProcessFunc[T any, R any] func(msg T) (R, error)
+type ProcessFunc[T any, R any] func(ctx context.Context, msg T) (R, error)
 
 // WorkerPool implements a concurrent worker pool pattern for processing messages.
 // It allows processing multiple messages concurrently using a specified number of workers.
@@ -123,7 +123,7 @@ func (wp *WorkerPool[T, R]) Run(ctx context.Context) {
 								return
 							}
 
-							processedMsg, err := wp.processFunc(msg)
+							processedMsg, err := wp.processFunc(ctx, msg)
 							if err != nil {
 								wp.errCh <- err
 								continue
@@ -139,7 +139,7 @@ func (wp *WorkerPool[T, R]) Run(ctx context.Context) {
 						return
 					}
 
-					processedMsg, err := wp.processFunc(msg)
+					processedMsg, err := wp.processFunc(ctx, msg)
 					if err != nil {
 						wp.errCh <- err
 						continue

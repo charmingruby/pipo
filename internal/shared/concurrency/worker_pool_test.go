@@ -12,7 +12,7 @@ import (
 
 func Test_WorkerPool(t *testing.T) {
 	t.Run("should process messages in concurrently", func(t *testing.T) {
-		processFunc := func(msg dummyInput) (dummyOutput, error) {
+		processFunc := func(ctx context.Context, msg dummyInput) (dummyOutput, error) {
 			return dummyOutput{
 				ID:     msg.ID,
 				Text:   msg.RawText,

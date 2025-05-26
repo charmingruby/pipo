@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/charmingruby/pipo/internal/sentiment/model"
+	"github.com/charmingruby/pipo/internal/sentiment/core/model"
 	"github.com/charmingruby/pipo/internal/shared/concurrency"
 	"github.com/charmingruby/pipo/pkg/csv"
 )
@@ -34,7 +34,36 @@ func (s *Service) IngestRawData(
 	ingestedData := make([]model.RawSentiment, 0)
 	processingErrors := make([]error, 0)
 
-	wp := concurrency.NewWorkerPool(s, 10)
+	wp := concurrency.NewWorkerPool(func(ctx context.Context, record ingestRawDataProcessorInput) (ingestRawDataProcessorOutput, error) {
+		id, err := strconv.Atoi(record[0])
+		if err != nil {
+			return ingestRawDataProcessorOutput{}, err
+		}
+
+		sentiment, err := strconv.Atoi(record[2])
+		if err != nil {
+			return ingestRawDataProcessorOutput{}, err
+		}
+
+		rawSentimentData := model.NewRawSentiment(id, record[1], sentiment)
+
+		message, err := json.Marshal(rawSentimentData)
+		if err != nil {
+			return ingestRawDataProcessorOutput{}, err
+		}
+
+		publishCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+
+		if err := s.broker.Publish(publishCtx, s.sentimentIngestTopic, message); err != nil {
+			return ingestRawDataProcessorOutput{}, err
+		}
+		return ingestRawDataProcessorOutput{
+			Data: *rawSentimentData,
+		}, nil
+	},
+		10,
+	)
 
 	wp.Run(ctx)
 
@@ -82,34 +111,4 @@ type ingestRawDataProcessorInput = []string
 
 type ingestRawDataProcessorOutput struct {
 	Data model.RawSentiment
-}
-
-func (s *Service) Process(record ingestRawDataProcessorInput) (ingestRawDataProcessorOutput, error) {
-	id, err := strconv.Atoi(record[0])
-	if err != nil {
-		return ingestRawDataProcessorOutput{}, err
-	}
-
-	sentiment, err := strconv.Atoi(record[2])
-	if err != nil {
-		return ingestRawDataProcessorOutput{}, err
-	}
-
-	rawSentimentData := model.NewRawSentiment(id, record[1], sentiment)
-
-	message, err := json.Marshal(rawSentimentData)
-	if err != nil {
-		return ingestRawDataProcessorOutput{}, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := s.broker.Publish(ctx, s.sentimentIngestTopic, message); err != nil {
-		return ingestRawDataProcessorOutput{}, err
-	}
-
-	return ingestRawDataProcessorOutput{
-		Data: *rawSentimentData,
-	}, nil
 }
