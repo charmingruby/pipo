@@ -11,9 +11,9 @@ import (
 	"github.com/charmingruby/pipo/internal/sentiment/core/service"
 	"github.com/charmingruby/pipo/internal/sentiment/database/repository"
 	"github.com/charmingruby/pipo/internal/shared/broker"
-	"github.com/charmingruby/pipo/pkg/logger"
-	"github.com/charmingruby/pipo/pkg/postgres"
-	"github.com/charmingruby/pipo/pkg/redis"
+	"github.com/charmingruby/pipo/lib/broker/redis"
+	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo/lib/persistence/postgres"
 	"github.com/joho/godotenv"
 )
 
@@ -100,7 +100,7 @@ type Args struct {
 func parseArgs() (Args, error) {
 	maxRecords := 241145
 
-	filePath := flag.String("file", "./dataset/sentiment_data.csv", "path to the csv file, default is ./dataset/sentiment_data.csv")
+	filePath := flag.String("file", "../../data/sentiment_data.csv", "path to the csv file, default is ./data/sentiment_data.csv")
 	records := flag.Int("records", maxRecords, "number of records to read, max value is "+strconv.Itoa(maxRecords))
 
 	flag.Parse()

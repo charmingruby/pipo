@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/charmingruby/pipo/pkg/logger"
+	"github.com/charmingruby/pipo/lib/logger"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
