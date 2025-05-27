@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/charmingruby/pipo/service/worker/internal/sentiment/core/model"
+	"github.com/charmingruby/pipo/service/worker/internal/core/model"
 )
 
 type SentimentRepository interface {
