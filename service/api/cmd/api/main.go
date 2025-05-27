@@ -9,14 +9,10 @@ import (
 
 	"github.com/charmingruby/pipo/lib/broker/redis"
 	"github.com/charmingruby/pipo/lib/logger"
-	"github.com/charmingruby/pipo/lib/persistence/postgres"
-	"github.com/charmingruby/pipo/service/worker/config"
-	"github.com/charmingruby/pipo/service/worker/internal/core/service"
-	"github.com/charmingruby/pipo/service/worker/internal/database/repository"
+	"github.com/charmingruby/pipo/service/api/config"
+	"github.com/charmingruby/pipo/service/api/internal/core/service"
 	"github.com/joho/godotenv"
 )
-
-// TODO: Should be transformed into a cronjob on K8s?
 
 func main() {
 	logger := logger.New()
@@ -54,29 +50,7 @@ func main() {
 
 	redisBroker := redis.NewStream(redisClient)
 
-	db, err := postgres.New(logger, postgres.ConnectionInput{
-		Host:         cfg.DatabaseHost,
-		Port:         cfg.DatabasePort,
-		User:         cfg.DatabaseUser,
-		Password:     cfg.DatabasePassword,
-		DatabaseName: cfg.DatabaseName,
-		SSL:          cfg.DatabaseSSL,
-	})
-
-	if err != nil {
-		logger.Error("failed to create postgres connection", "error", err)
-
-		os.Exit(1)
-	}
-
-	repo, err := repository.NewPostgresSentimentRepository(db.Conn)
-	if err != nil {
-		logger.Error("failed to create postgres sentiment repository", "error", err)
-
-		os.Exit(1)
-	}
-
-	sentimentService := service.New(logger, redisBroker, repo, cfg.SentimentIngestedTopic)
+	sentimentService := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
 
 	if _, err := sentimentService.IngestRawData(
 		context.Background(),
