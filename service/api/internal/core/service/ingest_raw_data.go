@@ -18,8 +18,8 @@ type IngestRawDataInput struct {
 }
 
 type IngestRawDataOutput struct {
-	ProcessedData []model.RawSentiment
-	Errors        []error
+	IngestedData []model.RawSentiment
+	Errors       []error
 }
 
 func (s *Service) IngestRawData(
@@ -102,8 +102,8 @@ func (s *Service) IngestRawData(
 	)
 
 	return IngestRawDataOutput{
-		ProcessedData: ingestedData,
-		Errors:        processingErrors,
+		IngestedData: ingestedData,
+		Errors:       processingErrors,
 	}, nil
 }
 
