@@ -14,11 +14,10 @@ type PostgresSentimentRepository struct {
 	db *sqlx.DB
 }
 
-func NewPostgresSentimentRepository(db *sqlx.DB) (*PostgresSentimentRepository, error) {
-
+func NewPostgresSentimentRepository(db *sqlx.DB) *PostgresSentimentRepository {
 	return &PostgresSentimentRepository{
 		db: db,
-	}, nil
+	}
 }
 
 func (r *PostgresSentimentRepository) CreateMany(ctx context.Context, sentiments []model.Sentiment) (int64, error) {

@@ -40,6 +40,8 @@ func main() {
 
 	redisBroker := redis.NewStream(redisClient)
 
+	logger.Info("redis broker created")
+
 	db, err := postgres.New(logger, postgres.ConnectionInput{
 		Host:         cfg.DatabaseHost,
 		Port:         cfg.DatabasePort,
@@ -55,18 +57,15 @@ func main() {
 
 	logger.Info("database connected")
 
-	repo, err := repository.NewPostgresSentimentRepository(db.Conn)
-	if err != nil {
-		logger.Error("failed to create postgres sentiment repository", "error", err)
-
-		os.Exit(1)
-	}
+	repo := repository.NewPostgresSentimentRepository(db.Conn)
 
 	service := service.New(logger, redisBroker, repo, cfg.SentimentIngestedTopic)
 
 	eventHandler := event.New(logger, redisBroker, event.TopicInput{
 		SentimentIngested: cfg.SentimentIngestedTopic,
 	}, service)
+
+	logger.Info("event handler subscribed")
 
 	if err := eventHandler.Subscribe(); err != nil {
 		logger.Error("failed to subscribe to event handler", "error", err)

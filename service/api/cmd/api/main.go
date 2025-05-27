@@ -39,12 +39,16 @@ func main() {
 
 	redisBroker := redis.NewStream(redisClient)
 
+	logger.Info("redis broker created")
+
 	service := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
 
 	server, router := rest.New(cfg.RestServerHost, cfg.RestServerPort)
 
 	endpoint := endpoint.New(router, service)
 	endpoint.Register()
+
+	logger.Info("rest server started", "port", cfg.RestServerPort)
 
 	if err := server.Start(); err != nil {
 		logger.Error("failed to start rest server", "error", err)
