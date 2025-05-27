@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/charmingruby/pipo/internal/sentiment/core/model"
@@ -11,7 +10,7 @@ import (
 	"github.com/charmingruby/pipo/internal/shared/concurrency"
 )
 
-func (h *Handler) onSentimentIngested() error {
+func (h *Handler) onSentimentIngested() []error {
 	wp := concurrency.NewWorkerPool(h.service.ProcessRawData, 10)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -22,20 +21,23 @@ func (h *Handler) onSentimentIngested() error {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
+	errors := make([]error, 0)
+
 	go func() {
 		defer wg.Done()
 		for err := range wp.Error() {
-			fmt.Printf("Error processing message: %v\n", err)
+			errors = append(errors, err)
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
-		for range wp.Output() {
+		for op := range wp.Output() {
+			h.logger.Debug("processed message", "output", op)
 		}
 	}()
 
-	return h.broker.Subscribe(context.Background(), h.topics.SentimentIngested, func(message []byte) error {
+	if err := h.broker.Subscribe(context.Background(), h.topics.SentimentIngested, func(message []byte) error {
 		var rawSentiment model.RawSentiment
 		if err := json.Unmarshal(message, &rawSentiment); err != nil {
 			return err
@@ -49,5 +51,11 @@ func (h *Handler) onSentimentIngested() error {
 		}:
 			return nil
 		}
-	})
+	}); err != nil {
+		errors = append(errors, err)
+	}
+
+	wg.Wait()
+
+	return errors
 }

@@ -41,7 +41,7 @@ func main() {
 
 	service := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
 
-	eventHandler := event.New(redisBroker, event.TopicInput{
+	eventHandler := event.New(logger, redisBroker, event.TopicInput{
 		SentimentIngested: cfg.SentimentIngestedTopic,
 	}, service)
 

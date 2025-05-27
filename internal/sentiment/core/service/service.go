@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/charmingruby/pipo/internal/sentiment/core/repository"
 	"github.com/charmingruby/pipo/internal/shared/broker"
 	"github.com/charmingruby/pipo/pkg/logger"
 )
@@ -8,6 +9,7 @@ import (
 type Service struct {
 	logger               *logger.Logger
 	broker               broker.Broker
+	sentimentRepository  repository.SentimentRepository
 	sentimentIngestTopic string
 }
 
