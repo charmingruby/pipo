@@ -3,14 +3,13 @@ package main
 import (
 	"os"
 
-	"github.com/charmingruby/pipo/config"
-	"github.com/charmingruby/pipo/internal/sentiment/core/service"
-	"github.com/charmingruby/pipo/internal/sentiment/database/repository"
-	"github.com/charmingruby/pipo/internal/sentiment/delivery/event"
-	"github.com/charmingruby/pipo/internal/shared/broker"
 	"github.com/charmingruby/pipo/lib/broker/redis"
 	"github.com/charmingruby/pipo/lib/logger"
 	"github.com/charmingruby/pipo/lib/persistence/postgres"
+	"github.com/charmingruby/pipo/service/worker/config"
+	"github.com/charmingruby/pipo/service/worker/internal/core/service"
+	"github.com/charmingruby/pipo/service/worker/internal/database/repository"
+	"github.com/charmingruby/pipo/service/worker/internal/delivery/event"
 	"github.com/joho/godotenv"
 )
 
@@ -30,7 +29,7 @@ func main() {
 
 	logger.Info("config loaded")
 
-	redisClient, err := redis.New(cfg.RedisURL)
+	redisClient, err := redis.NewClient(cfg.RedisURL)
 	if err != nil {
 		logger.Error("failed to connect to redis", "error", err)
 
@@ -39,7 +38,7 @@ func main() {
 
 	logger.Info("redis connected")
 
-	redisBroker := broker.NewRedisStream(redisClient)
+	redisBroker := redis.NewStream(redisClient)
 
 	db, err := postgres.New(logger, postgres.ConnectionInput{
 		Host:         cfg.DatabaseHost,

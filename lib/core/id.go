@@ -1,4 +1,4 @@
-package id
+package core
 
 import "github.com/oklog/ulid/v2"
 

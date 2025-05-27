@@ -5,7 +5,7 @@ import (
 	"errors"
 	"unicode/utf8"
 
-	"github.com/charmingruby/pipo/internal/sentiment/core/model"
+	"github.com/charmingruby/pipo/service/worker/internal/core/model"
 )
 
 const (

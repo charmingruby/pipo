@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/charmingruby/pipo/internal/shared/id"
+	"github.com/charmingruby/pipo/lib/core"
 )
 
 type Sentiment struct {
@@ -24,7 +24,7 @@ type SentimentInput struct {
 
 func NewSentiment(in SentimentInput) *Sentiment {
 	return &Sentiment{
-		ID:         id.New(),
+		ID:         core.New(),
 		DocumentID: in.DocumentID,
 		Excerpt:    in.Excerpt,
 		Comment:    in.Comment,

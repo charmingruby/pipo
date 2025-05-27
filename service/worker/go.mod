@@ -1,4 +1,4 @@
-module github.com/charmingruby/pipo
+module github.com/charmingruby/pipo/service/worker
 
 go 1.23.2
 

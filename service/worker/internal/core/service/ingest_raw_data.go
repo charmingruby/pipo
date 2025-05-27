@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/charmingruby/pipo/internal/sentiment/core/model"
-	"github.com/charmingruby/pipo/internal/shared/concurrency"
-	"github.com/charmingruby/pipo/pkg/csv"
+	"github.com/charmingruby/pipo/lib/concurrency"
+	"github.com/charmingruby/pipo/service/worker/internal/core/model"
+	"github.com/charmingruby/pipo/service/worker/pkg/csv"
 )
 
 type IngestRawDataInput struct {

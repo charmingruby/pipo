@@ -1,9 +1,9 @@
 package event
 
 import (
-	"github.com/charmingruby/pipo/internal/sentiment/core/service"
-	"github.com/charmingruby/pipo/internal/shared/broker"
+	"github.com/charmingruby/pipo/lib/broker"
 	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo/service/worker/internal/core/service"
 )
 
 type Handler struct {
