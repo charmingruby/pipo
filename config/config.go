@@ -3,6 +3,12 @@ package config
 import "github.com/caarlos0/env"
 
 type Config struct {
+	DatabaseHost           string `env:"DATABASE_HOST,required"`
+	DatabasePort           string `env:"DATABASE_PORT,required"`
+	DatabaseUser           string `env:"DATABASE_USER,required"`
+	DatabasePassword       string `env:"DATABASE_PASSWORD,required"`
+	DatabaseName           string `env:"DATABASE_NAME,required"`
+	DatabaseSSL            string `env:"DATABASE_SSL,required"`
 	RedisURL               string `env:"REDIS_URL,required"`
 	SentimentIngestedTopic string `env:"SENTIMENT_INGESTED_TOPIC,required"`
 }

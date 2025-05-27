@@ -10,6 +10,8 @@ import (
 	"github.com/charmingruby/pipo/internal/shared/concurrency"
 )
 
+const batchSize = 1000
+
 func (h *Handler) onSentimentIngested() []error {
 	wp := concurrency.NewWorkerPool(h.service.ProcessRawData, 10)
 
@@ -22,6 +24,7 @@ func (h *Handler) onSentimentIngested() []error {
 	wg.Add(2)
 
 	errors := make([]error, 0)
+	batch := make([]model.RawSentiment, 0, batchSize)
 
 	go func() {
 		defer wg.Done()
@@ -33,7 +36,10 @@ func (h *Handler) onSentimentIngested() []error {
 	go func() {
 		defer wg.Done()
 		for op := range wp.Output() {
-			h.logger.Debug("processed message", "output", op)
+			h.logger.Info("processed batch",
+				"batch-size", len(batch),
+				"success-count", op.SuccessCount,
+			)
 		}
 	}()
 
@@ -43,19 +49,36 @@ func (h *Handler) onSentimentIngested() []error {
 			return err
 		}
 
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case wp.Input() <- service.ProcessRawDataInput{
-			RawSentiment: rawSentiment,
-		}:
-			return nil
+		batch = append(batch, rawSentiment)
+
+		if len(batch) >= batchSize {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case wp.Input() <- service.ProcessRawDataInput{
+				RawSentiments: batch,
+			}:
+				batch = make([]model.RawSentiment, 0, batchSize)
+				return nil
+			}
 		}
+
+		return nil
 	}); err != nil {
 		errors = append(errors, err)
 	}
 
 	wg.Wait()
+
+	if len(batch) > 0 {
+		select {
+		case <-ctx.Done():
+			return append(errors, ctx.Err())
+		case wp.Input() <- service.ProcessRawDataInput{
+			RawSentiments: batch,
+		}:
+		}
+	}
 
 	return errors
 }

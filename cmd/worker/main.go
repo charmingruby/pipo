@@ -5,9 +5,11 @@ import (
 
 	"github.com/charmingruby/pipo/config"
 	"github.com/charmingruby/pipo/internal/sentiment/core/service"
+	"github.com/charmingruby/pipo/internal/sentiment/database/repository"
 	"github.com/charmingruby/pipo/internal/sentiment/delivery/event"
 	"github.com/charmingruby/pipo/internal/shared/broker"
 	"github.com/charmingruby/pipo/pkg/logger"
+	"github.com/charmingruby/pipo/pkg/postgres"
 	"github.com/charmingruby/pipo/pkg/redis"
 	"github.com/joho/godotenv"
 )
@@ -39,7 +41,29 @@ func main() {
 
 	redisBroker := broker.NewRedisStream(redisClient)
 
-	service := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
+	db, err := postgres.New(logger, postgres.ConnectionInput{
+		Host:         cfg.DatabaseHost,
+		Port:         cfg.DatabasePort,
+		User:         cfg.DatabaseUser,
+		Password:     cfg.DatabasePassword,
+		DatabaseName: cfg.DatabaseName,
+		SSL:          cfg.DatabaseSSL,
+	})
+	if err != nil {
+		logger.Error("failed to connect to database", "error", err)
+		os.Exit(1)
+	}
+
+	logger.Info("database connected")
+
+	repo, err := repository.NewPostgresSentimentRepository(db.Conn)
+	if err != nil {
+		logger.Error("failed to create postgres sentiment repository", "error", err)
+
+		os.Exit(1)
+	}
+
+	service := service.New(logger, redisBroker, repo, cfg.SentimentIngestedTopic)
 
 	eventHandler := event.New(logger, redisBroker, event.TopicInput{
 		SentimentIngested: cfg.SentimentIngestedTopic,

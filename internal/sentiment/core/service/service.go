@@ -13,10 +13,11 @@ type Service struct {
 	sentimentIngestTopic string
 }
 
-func New(logger *logger.Logger, broker broker.Broker, sentimentIngestTopic string) *Service {
+func New(logger *logger.Logger, broker broker.Broker, sentimentRepo repository.SentimentRepository, sentimentIngestTopic string) *Service {
 	return &Service{
 		logger:               logger,
 		broker:               broker,
+		sentimentRepository:  sentimentRepo,
 		sentimentIngestTopic: sentimentIngestTopic,
 	}
 }

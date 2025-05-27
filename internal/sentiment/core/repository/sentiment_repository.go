@@ -7,5 +7,5 @@ import (
 )
 
 type SentimentRepository interface {
-	Create(ctx context.Context, sentiment model.Sentiment) error
+	CreateMany(ctx context.Context, sentiments []model.Sentiment) (int64, error)
 }

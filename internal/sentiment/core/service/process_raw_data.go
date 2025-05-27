@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"unicode/utf8"
 
 	"github.com/charmingruby/pipo/internal/sentiment/core/model"
 )
@@ -11,6 +12,7 @@ const (
 	NEGATIVE_EMOTION = iota
 	NEUTRAL_EMOTION
 	POSITIVE_EMOTION
+	DEFAULT_COMMENT = "Invalid UTF-8 text"
 )
 
 var (
@@ -20,34 +22,41 @@ var (
 )
 
 type ProcessRawDataInput struct {
-	RawSentiment model.RawSentiment
+	RawSentiments []model.RawSentiment
 }
 
 type ProcessRawDataOutput struct {
-	Sentiment model.Sentiment
+	Sentiments   []model.Sentiment
+	SuccessCount int64
 }
 
 func (s *Service) ProcessRawData(
 	ctx context.Context,
 	in ProcessRawDataInput,
 ) (ProcessRawDataOutput, error) {
-	rawData := in.RawSentiment
+	sentiments := make([]model.Sentiment, 0, len(in.RawSentiments))
 
-	if err := s.validateRawData(rawData); err != nil {
-		return ProcessRawDataOutput{}, err
+	for _, rawData := range in.RawSentiments {
+		if err := s.validateRawData(rawData); err != nil {
+			return ProcessRawDataOutput{}, err
+		}
+
+		sentiment, err := s.transformRawData(rawData)
+		if err != nil {
+			return ProcessRawDataOutput{}, err
+		}
+
+		sentiments = append(sentiments, sentiment)
 	}
 
-	sentiment, err := s.transformRawData(rawData)
+	affected, err := s.persistSentiments(ctx, sentiments)
 	if err != nil {
 		return ProcessRawDataOutput{}, err
 	}
 
-	// if err := s.persistSentiment(ctx, sentiment); err != nil {
-	// 	return ProcessRawDataOutput{}, err
-	// }
-
 	return ProcessRawDataOutput{
-		Sentiment: sentiment,
+		Sentiments:   sentiments,
+		SuccessCount: affected,
 	}, nil
 }
 
@@ -66,30 +75,39 @@ func (s *Service) validateRawData(rawData model.RawSentiment) error {
 func (s *Service) transformRawData(rawData model.RawSentiment) (model.Sentiment, error) {
 	emotion := s.mapEmotion(rawData.Sentiment)
 
+	comment := rawData.Comment
+
 	var excerpt string
-	if rawData.Comment != "" && len(rawData.Comment) > 100 {
-		minComment := rawData.Comment[:97]
+	if len(comment) > 100 {
+		minComment := comment[:97]
 		excerpt = minComment + "..."
+	} else {
+		excerpt = comment
+	}
+
+	if !utf8.ValidString(comment) || !utf8.ValidString(excerpt) {
+		comment = DEFAULT_COMMENT
+		excerpt = DEFAULT_COMMENT
 	}
 
 	sentiment := model.NewSentiment(model.SentimentInput{
-		ID:      rawData.ID,
-		Excerpt: excerpt,
-		Comment: rawData.Comment,
-		Emotion: emotion,
+		DocumentID: rawData.ID,
+		Excerpt:    excerpt,
+		Comment:    comment,
+		Emotion:    emotion,
 	})
 
 	return *sentiment, nil
 }
 
-func (s *Service) persistSentiment(ctx context.Context, sentiment model.Sentiment) error {
-	if err := s.sentimentRepository.Create(ctx, sentiment); err != nil {
-		s.logger.Error("failed to persist sentiment", "error", err)
-
-		return ErrFailedToPersistSentiment
+func (s *Service) persistSentiments(ctx context.Context, sentiments []model.Sentiment) (int64, error) {
+	affected, err := s.sentimentRepository.CreateMany(ctx, sentiments)
+	if err != nil {
+		s.logger.Error("failed to persist sentiments", "error", err)
+		return 0, ErrFailedToPersistSentiment
 	}
 
-	return nil
+	return affected, nil
 }
 
 func (s *Service) mapEmotion(sentiment int) string {
