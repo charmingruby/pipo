@@ -16,6 +16,8 @@ type Server struct {
 func New(host, port string) (*Server, *gin.Engine) {
 	router := gin.Default()
 
+	gin.SetMode(gin.ReleaseMode)
+
 	addr := fmt.Sprintf("%s:%s", host, port)
 
 	return &Server{

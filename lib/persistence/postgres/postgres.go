@@ -48,6 +48,10 @@ func New(logger *logger.Logger, in ConnectionInput) (*Client, error) {
 	return &Client{Conn: db, logger: logger}, nil
 }
 
+func (c *Client) Ping(ctx context.Context) error {
+	return c.Conn.PingContext(ctx)
+}
+
 func (c *Client) Close(ctx context.Context) error {
 	c.Conn.Close()
 

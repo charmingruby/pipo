@@ -17,5 +17,5 @@ func New(router *gin.Engine, service *service.Service) *Endpoint {
 func (e *Endpoint) Register() {
 	api := e.router.Group("/api")
 
-	api.POST("/sentiment/ingest", e.makeIngestRawDataHandler())
+	api.POST("/sentiment/ingest", e.makeIngestRawDataEndpoint())
 }

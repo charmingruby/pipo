@@ -3,3 +3,6 @@ TODO.md
 
 # environment variables
 .env
+
+# temporary files
+tmp

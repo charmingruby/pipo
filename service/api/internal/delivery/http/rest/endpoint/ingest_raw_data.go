@@ -19,7 +19,7 @@ type IngestRawDataResponse struct {
 	Errors       []error              `json:"errors"`
 }
 
-func (e *Endpoint) makeIngestRawDataHandler() gin.HandlerFunc {
+func (e *Endpoint) makeIngestRawDataEndpoint() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req IngestRawDataRequest
 		if err := c.ShouldBindJSON(&req); err != nil {

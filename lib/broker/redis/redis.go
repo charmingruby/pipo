@@ -17,32 +17,46 @@ var (
 	ErrInvalidMessageDataType = errors.New("invalid message data type")
 )
 
-func NewClient(url string) (*redis.Client, error) {
-	client := redis.NewClient(&redis.Options{
+type Client struct {
+	conn *redis.Client
+}
+
+func NewClient(url string) (*Client, error) {
+	conn := redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: "",
 		DB:       0,
 	})
 
-	if _, err := client.Ping().Result(); err != nil {
+	if _, err := conn.Ping().Result(); err != nil {
 		return nil, err
 	}
 
-	return client, nil
+	return &Client{
+		conn: conn,
+	}, nil
+}
+
+func (c *Client) Ping(ctx context.Context) error {
+	return c.conn.Ping().Err()
+}
+
+func (c *Client) Close() error {
+	return c.conn.Close()
 }
 
 type Stream struct {
-	client *redis.Client
+	client *Client
 }
 
-func NewStream(client *redis.Client) *Stream {
+func NewStream(client *Client) *Stream {
 	return &Stream{
 		client: client,
 	}
 }
 
 func (s *Stream) Publish(ctx context.Context, topic string, message []byte) error {
-	if _, err := s.client.XAdd(&redis.XAddArgs{
+	if _, err := s.client.conn.XAdd(&redis.XAddArgs{
 		Stream: topic,
 		Values: map[string]interface{}{
 			"data": message,
@@ -62,7 +76,7 @@ func (s *Stream) Subscribe(ctx context.Context, topic string, handler func(messa
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			streams, err := s.client.XRead(&redis.XReadArgs{
+			streams, err := s.client.conn.XRead(&redis.XReadArgs{
 				Streams: []string{topic, lastID},
 				Count:   batchSize,
 				Block:   blockTime,

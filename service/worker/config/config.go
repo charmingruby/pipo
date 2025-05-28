@@ -3,6 +3,8 @@ package config
 import "github.com/caarlos0/env"
 
 type Config struct {
+	RestServerHost         string `env:"REST_SERVER_HOST,required"`
+	RestServerPort         string `env:"REST_SERVER_PORT,required"`
 	DatabaseHost           string `env:"DATABASE_HOST,required"`
 	DatabasePort           string `env:"DATABASE_PORT,required"`
 	DatabaseUser           string `env:"DATABASE_USER,required"`
