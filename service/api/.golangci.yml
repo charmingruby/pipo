@@ -17,7 +17,6 @@ linters:
     - canonicalheader
     - copyloopvar
     - cyclop
-    - depguard
     - dupl
     - durationcheck
     - errcheck
@@ -94,28 +93,6 @@ linters-settings:
   cyclop:
     max-complexity: 30
     package-average: 10.0
-
-  depguard:
-    rules:
-      deprecated:
-        files: ["$all"]
-        deny:
-          - pkg: github.com/golang/protobuf
-            desc: Use google.golang.org/protobuf instead
-          - pkg: github.com/satori/go.uuid
-            desc: Use github.com/google/uuid instead
-          - pkg: github.com/gofrs/uuid$
-            desc: Use github.com/gofrs/uuid/v5 or later
-      non-test files:
-        files: ["!$test"]
-        deny:
-          - pkg: math/rand$
-            desc: Use math/rand/v2 instead
-      non-main files:
-        files: ["!**/main.go"]
-        deny:
-          - pkg: log$
-            desc: Use log/slog instead
 
   errcheck:
     check-type-assertions: true

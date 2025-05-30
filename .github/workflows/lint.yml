@@ -39,5 +39,5 @@ jobs:
         uses: golangci/golangci-lint-action@v4
         with:
           working-directory: ${{ matrix.service.path }}
-          version: v1.54
+          version: v2.0.1
           args: --timeout=3m --out-format=colored-line-number
