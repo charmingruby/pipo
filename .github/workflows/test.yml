@@ -8,5 +8,31 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - name: api
+            path: service/api
+            main: cmd/api/main.go
+          - name: worker
+            path: service/worker
+            main: cmd/worker/main.go
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{vars.GO_VERSION}}
+
+      - name: Build ${{ matrix.service.name }}
+        working-directory: ${{ matrix.service.path }}
+        run: |
+          go build -o ../../bin/${{ matrix.service.name }} ${{ matrix.service.main }}
+
+      - name: Test ${{ matrix.service.name }}
+        working-directory: ${{ matrix.service.path }}
+        run: |
+          go test -v ./...
