@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	NEGATIVE_EMOTION = iota
-	NEUTRAL_EMOTION
-	POSITIVE_EMOTION
-	DEFAULT_COMMENT = "Invalid UTF-8 text"
+	DefaultComment = "Invalid UTF-8 text"
+
+	NegativeEmotion = iota
+	NeutralEmotion
+	PositiveEmotion
 )
 
 var (
@@ -41,10 +42,7 @@ func (s *Service) ProcessRawData(
 			return ProcessRawDataOutput{}, err
 		}
 
-		sentiment, err := s.transformRawData(rawData)
-		if err != nil {
-			return ProcessRawDataOutput{}, err
-		}
+		sentiment := s.transformRawData(rawData)
 
 		sentiments = append(sentiments, sentiment)
 	}
@@ -61,7 +59,7 @@ func (s *Service) ProcessRawData(
 }
 
 func (s *Service) validateRawData(rawData model.RawSentiment) error {
-	if rawData.Sentiment < NEGATIVE_EMOTION || rawData.Sentiment > POSITIVE_EMOTION {
+	if rawData.Sentiment < NegativeEmotion || rawData.Sentiment > PositiveEmotion {
 		return ErrInvalidSentiment
 	}
 
@@ -72,7 +70,7 @@ func (s *Service) validateRawData(rawData model.RawSentiment) error {
 	return nil
 }
 
-func (s *Service) transformRawData(rawData model.RawSentiment) (model.Sentiment, error) {
+func (s *Service) transformRawData(rawData model.RawSentiment) model.Sentiment {
 	emotion := s.mapEmotion(rawData.Sentiment)
 
 	comment := rawData.Comment
@@ -86,8 +84,8 @@ func (s *Service) transformRawData(rawData model.RawSentiment) (model.Sentiment,
 	}
 
 	if !utf8.ValidString(comment) || !utf8.ValidString(excerpt) {
-		comment = DEFAULT_COMMENT
-		excerpt = DEFAULT_COMMENT
+		comment = DefaultComment
+		excerpt = DefaultComment
 	}
 
 	sentiment := model.NewSentiment(model.SentimentInput{
@@ -97,13 +95,13 @@ func (s *Service) transformRawData(rawData model.RawSentiment) (model.Sentiment,
 		Emotion:    emotion,
 	})
 
-	return *sentiment, nil
+	return *sentiment
 }
 
 func (s *Service) persistSentiments(ctx context.Context, sentiments []model.Sentiment) (int64, error) {
 	affected, err := s.sentimentRepository.CreateMany(ctx, sentiments)
 	if err != nil {
-		s.logger.Error("failed to persist sentiments", "error", err)
+		s.logger.ErrorContext(ctx, "failed to persist sentiments", "error", err)
 		return 0, ErrFailedToPersistSentiment
 	}
 
@@ -112,11 +110,11 @@ func (s *Service) persistSentiments(ctx context.Context, sentiments []model.Sent
 
 func (s *Service) mapEmotion(sentiment int) string {
 	switch sentiment {
-	case NEGATIVE_EMOTION:
+	case NegativeEmotion:
 		return "negative"
-	case NEUTRAL_EMOTION:
+	case NeutralEmotion:
 		return "neutral"
-	case POSITIVE_EMOTION:
+	case PositiveEmotion:
 		return "positive"
 	default:
 		return "unknown"

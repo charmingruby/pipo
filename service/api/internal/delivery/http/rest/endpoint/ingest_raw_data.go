@@ -10,7 +10,7 @@ import (
 )
 
 type IngestRawDataRequest struct {
-	Records  int    `json:"records" binding:"required"`
+	Records  int    `json:"records"   binding:"required"`
 	FilePath string `json:"file_path" binding:"required"`
 }
 

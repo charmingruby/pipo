@@ -34,34 +34,35 @@ func (s *Service) IngestRawData(
 	ingestedData := make([]model.RawSentiment, 0)
 	processingErrors := make([]error, 0)
 
-	wp := concurrency.NewWorkerPool(func(ctx context.Context, record ingestRawDataProcessorInput) (ingestRawDataProcessorOutput, error) {
-		id, err := strconv.Atoi(record[0])
-		if err != nil {
-			return ingestRawDataProcessorOutput{}, err
-		}
+	wp := concurrency.NewWorkerPool(
+		func(ctx context.Context, record ingestRawDataProcessorInput) (ingestRawDataProcessorOutput, error) {
+			id, err := strconv.Atoi(record[0])
+			if err != nil {
+				return ingestRawDataProcessorOutput{}, err
+			}
 
-		sentiment, err := strconv.Atoi(record[2])
-		if err != nil {
-			return ingestRawDataProcessorOutput{}, err
-		}
+			sentiment, err := strconv.Atoi(record[2])
+			if err != nil {
+				return ingestRawDataProcessorOutput{}, err
+			}
 
-		rawSentimentData := model.NewRawSentiment(id, record[1], sentiment)
+			rawSentimentData := model.NewRawSentiment(id, record[1], sentiment)
 
-		message, err := json.Marshal(rawSentimentData)
-		if err != nil {
-			return ingestRawDataProcessorOutput{}, err
-		}
+			message, err := json.Marshal(rawSentimentData)
+			if err != nil {
+				return ingestRawDataProcessorOutput{}, err
+			}
 
-		publishCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
+			publishCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+			defer cancel()
 
-		if err := s.broker.Publish(publishCtx, s.sentimentIngestTopic, message); err != nil {
-			return ingestRawDataProcessorOutput{}, err
-		}
-		return ingestRawDataProcessorOutput{
-			Data: *rawSentimentData,
-		}, nil
-	},
+			if err := s.broker.Publish(publishCtx, s.sentimentIngestTopic, message); err != nil {
+				return ingestRawDataProcessorOutput{}, err
+			}
+			return ingestRawDataProcessorOutput{
+				Data: *rawSentimentData,
+			}, nil
+		},
 		10,
 	)
 
@@ -84,7 +85,7 @@ func (s *Service) IngestRawData(
 		}
 	}()
 
-	if err := wp.SendBatch(ctx, []ingestRawDataProcessorInput(records)); err != nil {
+	if err := wp.SendBatch(ctx, records); err != nil {
 		return IngestRawDataOutput{}, err
 	}
 
@@ -94,7 +95,8 @@ func (s *Service) IngestRawData(
 
 	wg.Wait()
 
-	s.logger.Info(
+	s.logger.InfoContext(
+		ctx,
 		"ingested data",
 		"total-records", len(records),
 		"success-count", len(ingestedData),
