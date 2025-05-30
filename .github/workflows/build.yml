@@ -17,7 +17,6 @@ jobs:
           - name: worker
             path: service/worker
             main: cmd/worker/main.go
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +25,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{vars.GO_VERSION}}
+          cache: false
 
       - name: Build ${{ matrix.service.name }}
         working-directory: ${{ matrix.service.path }}
