@@ -26,4 +26,5 @@ jobs:
       - name: Build ${{ matrix.service.name }}
         working-directory: ${{ matrix.service.path }}
         run: |
-          go build -o ../../bin/${{ matrix.service.name }} ${{ matrix.service.main }}
+          mkdir -p ../../bin
+          go build -o ../../bin/${{ matrix.service.name }} ./${{ matrix.service.main }}
