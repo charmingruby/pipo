@@ -1,0 +1,12 @@
+name: Release Images
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
