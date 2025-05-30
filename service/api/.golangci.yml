@@ -1,12 +1,15 @@
-version: 2
+version: "2"
 
 run:
-  issues-max-same: 50
+  max-same-issues: 50
 
-formatters:
-  enable:
-    - goimports
-    - golines
+format:
+  goimports:
+    local-prefixes:
+      - github.com/my/project
+
+  golines:
+    max-len: 120
 
 linters:
   enable:
@@ -79,16 +82,6 @@ linters:
     - wastedassign
     - whitespace
 
-# Formatter-specific settings
-formatters-settings:
-  goimports:
-    local-prefixes:
-      - github.com/my/project
-
-  golines:
-    max-len: 120
-
-# Linter-specific settings
 linters-settings:
   cyclop:
     max-complexity: 30
@@ -98,7 +91,9 @@ linters-settings:
     check-type-assertions: true
 
   exhaustive:
-    check: [switch, map]
+    check:
+      - switch
+      - map
 
   exhaustruct:
     exclude:
@@ -172,7 +167,10 @@ linters-settings:
     max-func-lines: 0
 
   nolintlint:
-    allow-no-explanation: [funlen, gocognit, golines]
+    allow-no-explanation:
+      - funlen
+      - gocognit
+      - golines
     require-explanation: true
     require-specific: true
 
