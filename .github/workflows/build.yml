@@ -6,14 +6,18 @@ on:
       - main
 
 jobs:
-  load-services:
-    uses: ./.github/workflows/load-services.yml
-
   build:
-    needs: load-services
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{ fromJson(needs.load-services.outputs.services) }}
+      matrix:
+        service:
+          - name: api
+            path: service/api
+            main: cmd/api/main.go
+          - name: worker
+            path: service/worker
+            main: cmd/worker/main.go
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,5 +30,4 @@ jobs:
       - name: Build ${{ matrix.service.name }}
         working-directory: ${{ matrix.service.path }}
         run: |
-          mkdir -p ../../bin
-          go build -o ../../bin/${{ matrix.service.name }} ./${{ matrix.service.main }}
+          go build -o ../../bin/${{ matrix.service.name }} ${{ matrix.service.main }}
