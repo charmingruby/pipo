@@ -27,10 +27,14 @@ jobs:
           go-version: ${{vars.GO_VERSION}}
           cache: false
 
-      - name: Install dependencies
+      - name: Configure Go
         run: |
+          go env -w GOPRIVATE=github.com/charmingruby/pipo/*
           go work sync
-          cd ${{ matrix.service.path }}
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service.path }}
+        run: |
           go mod tidy
 
       - name: Build ${{ matrix.service.name }}
