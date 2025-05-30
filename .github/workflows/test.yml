@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           go work sync
+          cd ${{ matrix.service.path }}
           go mod tidy
 
       - name: Build ${{ matrix.service.name }}
