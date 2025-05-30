@@ -30,9 +30,14 @@ jobs:
           go-version: ${{vars.GO_VERSION}}
           cache: false
 
+      - name: Install dependencies
+        run: |
+          go work sync
+          go mod tidy
+
       - name: Lint
         uses: golangci/golangci-lint-action@v4
         with:
           working-directory: ${{ matrix.service.path }}
-          version: v8.0.0
+          version: v1.55.2
           args: --timeout=3m --out-format=colored-line-number

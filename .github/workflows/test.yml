@@ -27,15 +27,15 @@ jobs:
           go-version: ${{vars.GO_VERSION}}
           cache: false
 
+      - name: Install dependencies
+        run: |
+          go work sync
+          go mod tidy
+
       - name: Build ${{ matrix.service.name }}
         working-directory: ${{ matrix.service.path }}
         run: |
           go build -o ../../bin/${{ matrix.service.name }} ${{ matrix.service.main }}
-
-      - name: Install dependencies
-        working-directory: ${{ matrix.service.path }}
-        run: |
-          go mod tidy
 
       - name: Test ${{ matrix.service.name }}
         working-directory: ${{ matrix.service.path }}
