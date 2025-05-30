@@ -1,15 +1,20 @@
 version: "2"
 
-run:
-  max-same-issues: 50
-
-format:
-  goimports:
-    local-prefixes:
-      - github.com/my/project
-
-  golines:
-    max-len: 120
+formatters:
+  enable:
+    - goimports
+    - golines
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/my/project
+    golines:
+      max-len: 120
+  exclusions:
+    warn-unused: true
+    generated: strict
+    paths:
+      - ".*\\.my\\.go$"
 
 linters:
   enable:
@@ -17,7 +22,6 @@ linters:
     - asciicheck
     - bidichk
     - bodyclose
-    - canonicalheader
     - copyloopvar
     - cyclop
     - dupl
@@ -82,108 +86,111 @@ linters:
     - wastedassign
     - whitespace
 
-linters-settings:
-  cyclop:
-    max-complexity: 30
-    package-average: 10.0
+  exclusions:
+    rules:
+      - path: '(.+)_test\.go'
+        linters:
+          - asasalint
 
-  errcheck:
-    check-type-assertions: true
+  settings:
+    cyclop:
+      max-complexity: 30
+      package-average: 10.0
 
-  exhaustive:
-    check:
-      - switch
-      - map
+    errcheck:
+      check-type-assertions: true
 
-  exhaustruct:
-    exclude:
-      - ^net/http.Client$
-      - ^net/http.Cookie$
-      - ^net/http.Request$
-      - ^net/http.Response$
-      - ^net/http.Server$
-      - ^net/http.Transport$
-      - ^net/url.URL$
-      - ^os/exec.Cmd$
-      - ^reflect.StructField$
-      - ^github.com/Shopify/sarama.Config$
-      - ^github.com/Shopify/sarama.ProducerMessage$
-      - ^github.com/mitchellh/mapstructure.DecoderConfig$
-      - ^github.com/prometheus/client_golang/.+Opts$
-      - ^github.com/spf13/cobra.Command$
-      - ^github.com/spf13/cobra.CompletionOptions$
-      - ^github.com/stretchr/testify/mock.Mock$
-      - ^github.com/testcontainers/testcontainers-go.+Request$
-      - ^github.com/testcontainers/testcontainers-go.FromDockerfile$
-      - ^golang.org/x/tools/go/analysis.Analyzer$
-      - ^google.golang.org/protobuf/.+Options$
-      - ^gopkg.in/yaml.v3.Node$
+    exhaustive:
+      check:
+        - switch
+        - map
 
-  funcorder:
-    struct-method: false
+    exhaustruct:
+      exclude:
+        - ^net/http.Client$
+        - ^net/http.Cookie$
+        - ^net/http.Request$
+        - ^net/http.Response$
+        - ^net/http.Server$
+        - ^net/http.Transport$
+        - ^net/url.URL$
+        - ^os/exec.Cmd$
+        - ^reflect.StructField$
+        - ^github.com/Shopify/sarama.Config$
+        - ^github.com/Shopify/sarama.ProducerMessage$
+        - ^github.com/mitchellh/mapstructure.DecoderConfig$
+        - ^github.com/prometheus/client_golang/.+Opts$
+        - ^github.com/spf13/cobra.Command$
+        - ^github.com/spf13/cobra.CompletionOptions$
+        - ^github.com/stretchr/testify/mock.Mock$
+        - ^github.com/testcontainers/testcontainers-go.+Request$
+        - ^github.com/testcontainers/testcontainers-go.FromDockerfile$
+        - ^golang.org/x/tools/go/analysis.Analyzer$
+        - ^google.golang.org/protobuf/.+Options$
+        - ^gopkg.in/yaml.v3.Node$
 
-  funlen:
-    lines: 100
-    statements: 50
+    funcorder:
+      struct-method: false
 
-  gochecksumtype:
-    default-signifies-exhaustive: false
+    funlen:
+      lines: 100
+      statements: 50
 
-  gocognit:
-    min-complexity: 20
+    gochecksumtype:
+      default-signifies-exhaustive: false
 
-  gocritic:
-    settings:
-      captLocal:
-        paramsOnly: false
-      underef:
-        skipRecvDeref: false
+    gocognit:
+      min-complexity: 20
 
-  govet:
-    enable-all: true
-    settings:
-      shadow:
-        strict: false
+    gocritic:
+      settings:
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
 
-  inamedparam:
-    skip-single-param: true
+    govet:
+      enable-all: true
+      settings:
+        shadow:
+          strict: false
 
-  mnd:
-    ignored-functions:
-      - args.Error
-      - flag.Arg
-      - flag.Duration.*
-      - flag.Float.*
-      - flag.Int.*
-      - flag.Uint.*
-      - os.Chmod
-      - os.Mkdir.*
-      - os.OpenFile
-      - os.WriteFile
-      - prometheus.ExponentialBuckets.*
-      - prometheus.LinearBuckets
+    inamedparam:
+      skip-single-param: true
 
-  nakedret:
-    max-func-lines: 0
+    mnd:
+      ignored-functions:
+        - args.Error
+        - flag.Arg
+        - flag.Duration.*
+        - flag.Float.*
+        - flag.Int.*
+        - flag.Uint.*
+        - os.Chmod
+        - os.Mkdir.*
+        - os.OpenFile
+        - os.WriteFile
+        - prometheus.ExponentialBuckets.*
+        - prometheus.LinearBuckets
 
-  nolintlint:
-    allow-no-explanation:
-      - funlen
-      - gocognit
-      - golines
-    require-explanation: true
-    require-specific: true
+    nakedret:
+      max-func-lines: 0
 
-  perfsprint:
-    strconcat: false
+    nolintlint:
+      allow-no-explanation:
+        - funlen
+        - gocognit
+        - golines
+      require-explanation: true
+      require-specific: true
 
-  reassign:
-    patterns:
-      - ".*"
+    perfsprint:
+      strconcat: false
 
-  rowserrcheck:
-    packages:
-      - github.com/jmoiron/sqlx
+    reassign:
+      patterns:
+        - ".*"
 
-  sloglint:
-    global: all
+    rowserrcheck:
+      packages:
+        - github.com/jmoiron/sqlx
