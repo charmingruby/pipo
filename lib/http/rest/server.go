@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
+
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +19,8 @@ func New(host, port string) (*Server, *gin.Engine) {
 	router := gin.Default()
 
 	gin.SetMode(gin.ReleaseMode)
+
+	router.GET("/debug/pprof/*any", gin.WrapH(http.DefaultServeMux))
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 

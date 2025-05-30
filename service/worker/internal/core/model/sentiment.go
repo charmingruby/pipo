@@ -7,19 +7,19 @@ import (
 )
 
 type Sentiment struct {
+	CreatedAt  time.Time `json:"created_at"`
 	ID         string    `json:"id"`
-	DocumentID int       `json:"document_id"`
 	Excerpt    string    `json:"excerpt"`
 	Comment    string    `json:"comment"`
 	Emotion    string    `json:"emotion"`
-	CreatedAt  time.Time `json:"created_at"`
+	DocumentID int       `json:"document_id"`
 }
 
 type SentimentInput struct {
-	DocumentID int    `json:"document_id"`
 	Excerpt    string `json:"excerpt"`
 	Comment    string `json:"comment"`
 	Emotion    string `json:"emotion"`
+	DocumentID int    `json:"document_id"`
 }
 
 func NewSentiment(in SentimentInput) *Sentiment {

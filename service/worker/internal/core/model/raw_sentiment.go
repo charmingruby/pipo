@@ -1,8 +1,8 @@
 package model
 
 type RawSentiment struct {
-	ID        int    `json:"id"`
 	Comment   string `json:"comment"`
+	ID        int    `json:"id"`
 	Sentiment int    `json:"sentiment"`
 }
 
