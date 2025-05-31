@@ -32,7 +32,6 @@ linters:
     - exhaustive
     - exptostd
     - fatcontext
-    - fieldalignment
     - forbidigo
     - funcorder
     - funlen
