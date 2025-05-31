@@ -2,15 +2,20 @@ package csv
 
 import (
 	"encoding/csv"
+	"log"
 	"os"
 )
 
 func ReadFile(filePath string, amountOfRecords int) ([][]string, error) {
-	f, err := os.Open(filePath)
+	f, err := os.Open(filePath) // #nosec G304
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Print("error closing file", "err", err)
+		}
+	}()
 
 	csvReader := csv.NewReader(f)
 

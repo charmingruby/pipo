@@ -16,10 +16,10 @@ jobs:
         service:
           - name: api
             path: service/api
-            main: cmd/api/main.go
           - name: worker
             path: service/worker
-            main: cmd/worker/main.go
+          - name: lib
+            path: lib
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
