@@ -91,6 +91,10 @@ linters:
       - path: '(.+)_test\.go'
         linters:
           - asasalint
+      - path: .*\.go
+        linters:
+          - govet
+        text: "shadow: declaration of"
 
   settings:
     cyclop:
@@ -100,103 +104,97 @@ linters:
     errcheck:
       check-type-assertions: true
 
-  exclude-rules:
-    - path: .*\.go
-      linters:
-        - govet
-      text: "shadow: declaration of"
+    exhaustive:
+      check:
+        - switch
+        - map
 
-      exhaustive:
-        check:
-          - switch
-          - map
+    exhaustruct:
+      exclude:
+        - ^net/http.Client$
+        - ^net/http.Cookie$
+        - ^net/http.Request$
+        - ^net/http.Response$
+        - ^net/http.Server$
+        - ^net/http.Transport$
+        - ^net/url.URL$
+        - ^os/exec.Cmd$
+        - ^reflect.StructField$
+        - ^github.com/Shopify/sarama.Config$
+        - ^github.com/Shopify/sarama.ProducerMessage$
+        - ^github.com/mitchellh/mapstructure.DecoderConfig$
+        - ^github.com/prometheus/client_golang/.+Opts$
+        - ^github.com/spf13/cobra.Command$
+        - ^github.com/spf13/cobra.CompletionOptions$
+        - ^github.com/stretchr/testify/mock.Mock$
+        - ^github.com/testcontainers/testcontainers-go.+Request$
+        - ^github.com/testcontainers/testcontainers-go.FromDockerfile$
+        - ^golang.org/x/tools/go/analysis.Analyzer$
+        - ^google.golang.org/protobuf/.+Options$
+        - ^gopkg.in/yaml.v3.Node$
 
-      exhaustruct:
-        exclude:
-          - ^net/http.Client$
-          - ^net/http.Cookie$
-          - ^net/http.Request$
-          - ^net/http.Response$
-          - ^net/http.Server$
-          - ^net/http.Transport$
-          - ^net/url.URL$
-          - ^os/exec.Cmd$
-          - ^reflect.StructField$
-          - ^github.com/Shopify/sarama.Config$
-          - ^github.com/Shopify/sarama.ProducerMessage$
-          - ^github.com/mitchellh/mapstructure.DecoderConfig$
-          - ^github.com/prometheus/client_golang/.+Opts$
-          - ^github.com/spf13/cobra.Command$
-          - ^github.com/spf13/cobra.CompletionOptions$
-          - ^github.com/stretchr/testify/mock.Mock$
-          - ^github.com/testcontainers/testcontainers-go.+Request$
-          - ^github.com/testcontainers/testcontainers-go.FromDockerfile$
-          - ^golang.org/x/tools/go/analysis.Analyzer$
-          - ^google.golang.org/protobuf/.+Options$
-          - ^gopkg.in/yaml.v3.Node$
+    funcorder:
+      struct-method: false
 
-      funcorder:
-        struct-method: false
+    funlen:
+      lines: 100
+      statements: 50
 
-      funlen:
-        lines: 100
-        statements: 50
+    gochecksumtype:
+      default-signifies-exhaustive: false
 
-      gochecksumtype:
-        default-signifies-exhaustive: false
+    gocognit:
+      min-complexity: 20
 
-      gocognit:
-        min-complexity: 20
+    gocritic:
+      settings:
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
 
-      gocritic:
-        settings:
-          captLocal:
-            paramsOnly: false
-          underef:
-            skipRecvDeref: false
+    govet:
+      enable-all: true
+      settings:
+        shadow:
+          strict: false
 
-      govet:
-        enable-all: true
-        settings:
-          shadow:
-            strict: false
+    inamedparam:
+      skip-single-param: true
 
-      inamedparam:
-        skip-single-param: true
+    mnd:
+      ignored-functions:
+        - args.Error
+        - flag.Arg
+        - flag.Duration.*
+        - flag.Float.*
+        - flag.Int.*
+        - flag.Uint.*
+        - os.Chmod
+        - os.Mkdir.*
+        - os.OpenFile
+        - os.WriteFile
+        - prometheus.ExponentialBuckets.*
+        - prometheus.LinearBuckets
 
-      mnd:
-        ignored-functions:
-          - args.Error
-          - flag.Arg
-          - flag.Duration.*
-          - flag.Float.*
-          - flag.Int.*
-          - flag.Uint.*
-          - os.Chmod
-          - os.Mkdir.*
-          - os.OpenFile
-          - os.WriteFile
-          - prometheus.ExponentialBuckets.*
-          - prometheus.LinearBuckets
+    nakedret:
+      max-func-lines: 0
 
-      nakedret:
-        max-func-lines: 0
+    nolintlint:
+      allow-no-explanation:
+        - funlen
+        - gocognit
+        - golines
+      require-explanation: true
+      require-specific: true
 
-      nolintlint:
-        allow-no-explanation:
-          - funlen
-          - gocognit
-          - golines
-        require-explanation: true
-        require-specific: true
+    perfsprint:
+      strconcat: false
 
-      perfsprint:
-        strconcat: false
+    reassign:
+      patterns:
+        - ".*"
 
-      reassign:
-        patterns:
-          - ".*"
-
-      rowserrcheck:
-        packages:
-          - github.com/jmoiron/sqlx
+    rowserrcheck:
+      packages:
+        - github.com/jmoiron/sqlx
