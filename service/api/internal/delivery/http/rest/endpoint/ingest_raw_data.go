@@ -9,14 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// IngestRawDataRequest is the request for the IngestRawData endpoint.
 type IngestRawDataRequest struct {
-	Records  int    `json:"records"   binding:"required"`
+	// FilePath is the path to the file to be ingested.
 	FilePath string `json:"file_path" binding:"required"`
+	// Records is the number of records to be ingested.
+	Records int `json:"records"   binding:"required"`
 }
 
+// IngestRawDataResponse is the response for the IngestRawData endpoint.
 type IngestRawDataResponse struct {
+	// IngestedData is the data that was ingested.
 	IngestedData []model.RawSentiment `json:"ingested_data"`
-	Errors       []error              `json:"errors"`
+	// Errors is the errors that occurred during the ingestion.
+	Errors []error `json:"errors"`
 }
 
 func (e *Endpoint) makeIngestRawDataEndpoint() gin.HandlerFunc {

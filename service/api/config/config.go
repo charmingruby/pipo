@@ -1,14 +1,23 @@
+// Package config provides the configuration for the API service.
 package config
 
 import "github.com/caarlos0/env"
 
+// Config is the configuration for the API service.
 type Config struct {
-	RedisURL               string `env:"REDIS_URL,required"`
+	// RedisURL is the URL of the Redis server.
+	RedisURL string `env:"REDIS_URL,required"`
+	// SentimentIngestedTopic is the topic of the sentiment ingested.
 	SentimentIngestedTopic string `env:"SENTIMENT_INGESTED_TOPIC,required"`
-	RestServerHost         string `env:"REST_SERVER_HOST,required"`
-	RestServerPort         string `env:"REST_SERVER_PORT,required"`
+	// RestServerHost is the host of the REST server.
+	RestServerHost string `env:"REST_SERVER_HOST,required"`
+	// RestServerPort is the port of the REST server.
+	RestServerPort string `env:"REST_SERVER_PORT,required"`
 }
 
+// New constructs a new Config.
+//
+// Returns a new Config and an error if the configuration is invalid.
 func New() (*Config, error) {
 	var cfg Config
 

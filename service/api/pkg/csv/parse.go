@@ -6,6 +6,12 @@ import (
 	"os"
 )
 
+// ReadFile reads a CSV file and returns the records.
+//
+// filePath is the path to the file to be read.
+// amountOfRecords is the number of records to be read.
+//
+// Returns the records and an error if one occurs.
 func ReadFile(filePath string, amountOfRecords int) ([][]string, error) {
 	f, err := os.Open(filePath) // #nosec G304
 	if err != nil {

@@ -12,16 +12,37 @@ import (
 	"github.com/charmingruby/pipo/service/api/pkg/csv"
 )
 
+// IngestRawDataInput is the input for the IngestRawData function.
 type IngestRawDataInput struct {
+	// FilePath is the path to the file to be ingested.
 	FilePath string
-	Records  int
+	// Records is the number of records to be ingested.
+	Records int
 }
 
+// IngestRawDataOutput is the output for the IngestRawData function.
 type IngestRawDataOutput struct {
+	// IngestedData is the data that was ingested.
 	IngestedData []model.RawSentiment
-	Errors       []error
+	// Errors is the errors that occurred during the ingestion.
+	Errors []error
 }
 
+// ingestRawDataProcessorInput is the input for the ingestRawDataProcessor function.
+type ingestRawDataProcessorInput = []string
+
+// ingestRawDataProcessorOutput is the output for the ingestRawDataProcessor function.
+type ingestRawDataProcessorOutput struct {
+	// Data is the data that was ingested.
+	Data model.RawSentiment
+}
+
+// IngestRawData processes the ingestion of raw data.
+//
+// ctx is the context for the operation.
+// in is the input for the operation.
+//
+// Returns the output for the operation and an error if the operation failed.
 func (s *Service) IngestRawData(
 	ctx context.Context,
 	in IngestRawDataInput,
@@ -107,10 +128,4 @@ func (s *Service) IngestRawData(
 		IngestedData: ingestedData,
 		Errors:       processingErrors,
 	}, nil
-}
-
-type ingestRawDataProcessorInput = []string
-
-type ingestRawDataProcessorOutput struct {
-	Data model.RawSentiment
 }

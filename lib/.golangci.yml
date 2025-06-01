@@ -95,6 +95,9 @@ linters:
         linters:
           - govet
         text: "shadow: declaration of"
+      - path: '.*/main\.go$'
+        linters:
+          - revive
 
   settings:
     cyclop:
