@@ -10,16 +10,28 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// PostgresSentimentRepository is the repository for the sentiment.
 type PostgresSentimentRepository struct {
 	db *sqlx.DB
 }
 
+// NewPostgresSentimentRepository constructs a new PostgresSentimentRepository.
+//
+// db is the database connection.
+//
+// Returns a new PostgresSentimentRepository.
 func NewPostgresSentimentRepository(db *sqlx.DB) *PostgresSentimentRepository {
 	return &PostgresSentimentRepository{
 		db: db,
 	}
 }
 
+// CreateMany creates many sentiments.
+//
+// ctx is the context.
+// sentiments is the sentiments to create.
+//
+// Returns the number of sentiments created and an error if one occurs.
 func (r *PostgresSentimentRepository) CreateMany(ctx context.Context, sentiments []model.Sentiment) (int64, error) {
 	if len(sentiments) == 0 {
 		return 0, nil

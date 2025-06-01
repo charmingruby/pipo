@@ -9,28 +9,46 @@ import (
 )
 
 const (
+	// DefaultComment is the default comment, used when the comment is invalid UTF-8.
 	DefaultComment = "Invalid UTF-8 text"
 
+	// NegativeEmotion is the negative emotion, represented by 0.
 	NegativeEmotion = iota
+	// NeutralEmotion is the neutral emotion, represented by 1.
 	NeutralEmotion
+	// PositiveEmotion is the positive emotion, represented by 2.
 	PositiveEmotion
 )
 
 var (
-	ErrInvalidSentiment         = errors.New("invalid sentiment")
-	ErrBlankComment             = errors.New("comment should not be empty")
+	// ErrInvalidSentiment is the error for an invalid sentiment.
+	ErrInvalidSentiment = errors.New("invalid sentiment")
+	// ErrBlankComment is the error for a blank comment.
+	ErrBlankComment = errors.New("comment should not be empty")
+	// ErrFailedToPersistSentiment is the error for a failed to persist sentiment.
 	ErrFailedToPersistSentiment = errors.New("failed to persist sentiment")
 )
 
+// ProcessRawDataInput is the input for the process raw data.
 type ProcessRawDataInput struct {
+	// RawSentiments is the raw sentiments to process.
 	RawSentiments []model.RawSentiment
 }
 
+// ProcessRawDataOutput is the output for the process raw data.
 type ProcessRawDataOutput struct {
-	Sentiments   []model.Sentiment
+	// Sentiments is the sentiments created.
+	Sentiments []model.Sentiment
+	// SuccessCount is the number of sentiments created.
 	SuccessCount int64
 }
 
+// ProcessRawData processes the raw data.
+//
+// ctx is the context.
+// in is the input for the process raw data.
+//
+// Returns the output for the process raw data and an error if one occurs.
 func (s *Service) ProcessRawData(
 	ctx context.Context,
 	in ProcessRawDataInput,
