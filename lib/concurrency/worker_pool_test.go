@@ -1,4 +1,4 @@
-package concurrency
+package concurrency_test
 
 import (
 	"context"
@@ -7,12 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/charmingruby/pipo/lib/concurrency"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_WorkerPool(t *testing.T) {
 	t.Run("should process messages in concurrently", func(t *testing.T) {
-		processFunc := func(ctx context.Context, msg dummyInput) (dummyOutput, error) {
+		processFunc := func(_ context.Context, msg dummyInput) (dummyOutput, error) {
 			return dummyOutput{
 				ID:     msg.ID,
 				Text:   msg.RawText,
@@ -20,7 +21,7 @@ func Test_WorkerPool(t *testing.T) {
 			}, nil
 		}
 
-		wp := NewWorkerPool(processFunc, 10)
+		wp := concurrency.NewWorkerPool(processFunc, 10)
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
@@ -40,47 +41,55 @@ func Test_WorkerPool(t *testing.T) {
 		var wg sync.WaitGroup
 		wg.Add(2)
 
-		processedCount := 0
-		var mu sync.Mutex
+		processedResults := make(chan dummyOutput, amountOfMessages)
+		errorResults := make(chan error, amountOfMessages)
 
 		go func() {
 			defer wg.Done()
 			for msg := range wp.Output() {
-				mu.Lock()
-				processedCount++
-				mu.Unlock()
-
-				assert.Equal(t, msg.Status, "processed")
+				processedResults <- msg
 			}
+			close(processedResults)
 		}()
 
 		go func() {
 			defer wg.Done()
 			for err := range wp.Error() {
-				assert.NoError(t, err)
+				errorResults <- err
 			}
+			close(errorResults)
 		}()
 
 		err := wp.SendBatch(ctx, messages)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = wp.Close()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		wg.Wait()
 
-		assert.True(t, wp.IsClosed())
-		assert.Equal(t, amountOfMessages, processedCount, "all messages should be processed")
+		processedCount := 0
+		for msg := range processedResults {
+			require.Equal(t, "processed", msg.Status)
+			processedCount++
+		}
+
+		for err := range errorResults {
+			require.NoError(t, err)
+		}
+
+		require.True(t, wp.IsClosed())
+		require.Equal(t, amountOfMessages, processedCount, "all messages should be processed")
 	})
 }
 
 type dummyInput struct {
-	ID      int
 	RawText string
+	ID      int
 }
 
 type dummyOutput struct {
-	ID     int
 	Text   string
 	Status string
+	ID     int
 }

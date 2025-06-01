@@ -1,19 +1,27 @@
+// Package postgres provides a Postgres connection.
 package postgres
 
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/charmingruby/pipo/lib/logger"
 	"github.com/jmoiron/sqlx"
+
+	// Postgres driver.
 	_ "github.com/lib/pq"
 )
 
+// Client represents a Postgres connection.
 type Client struct {
-	Conn   *sqlx.DB
+	// Connection to the Postgres database.
+	Conn *sqlx.DB
+	// Logger.
 	logger *logger.Logger
 }
 
+// ConnectionInput represents the input for a Postgres connection.
 type ConnectionInput struct {
 	User         string
 	Password     string
@@ -23,13 +31,18 @@ type ConnectionInput struct {
 	SSL          string
 }
 
+// New constructs a new Postgres client.
+//
+// logger: The logger.
+// in: The connection input.
+//
+// Returns a new Postgres client and an error if the connection fails.
 func New(logger *logger.Logger, in ConnectionInput) (*Client, error) {
 	connectionString := fmt.Sprintf(
-		"postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		"postgresql://%s:%s@%s/%s?sslmode=%s",
 		in.User,
 		in.Password,
-		in.Host,
-		in.Port,
+		net.JoinHostPort(in.Host, in.Port),
 		in.DatabaseName,
 		in.SSL,
 	)
@@ -48,12 +61,25 @@ func New(logger *logger.Logger, in ConnectionInput) (*Client, error) {
 	return &Client{Conn: db, logger: logger}, nil
 }
 
+// Ping pings the Postgres database.
+//
+// ctx: The context of the request.
+//
+// Returns an error if the ping fails.
 func (c *Client) Ping(ctx context.Context) error {
 	return c.Conn.PingContext(ctx)
 }
 
+// Close closes the Postgres connection.
+//
+// ctx: The context of the request.
+//
+// Returns an error if the close fails.
 func (c *Client) Close(ctx context.Context) error {
-	c.Conn.Close()
+	if err := c.Conn.Close(); err != nil {
+		c.logger.Error("failed to close postgres connection", "error", err)
+		return err
+	}
 
 	select {
 	case <-ctx.Done():

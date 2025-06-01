@@ -24,7 +24,7 @@ type SentimentInput struct {
 
 func NewSentiment(in SentimentInput) *Sentiment {
 	return &Sentiment{
-		ID:         core.New(),
+		ID:         core.NewID(),
 		DocumentID: in.DocumentID,
 		Excerpt:    in.Excerpt,
 		Comment:    in.Comment,
