@@ -5,8 +5,6 @@ import "github.com/caarlos0/env"
 
 // Config is the configuration for the worker service.
 type Config struct {
-	// RestServerHost is the host of the REST server.
-	RestServerHost string `env:"REST_SERVER_HOST,required"`
 	// RestServerPort is the port of the REST server.
 	RestServerPort string `env:"REST_SERVER_PORT,required"`
 	// DatabaseHost is the host of the database.

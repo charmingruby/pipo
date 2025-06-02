@@ -9,8 +9,6 @@ type Config struct {
 	RedisURL string `env:"REDIS_URL,required"`
 	// SentimentIngestedTopic is the topic of the sentiment ingested.
 	SentimentIngestedTopic string `env:"SENTIMENT_INGESTED_TOPIC,required"`
-	// RestServerHost is the host of the REST server.
-	RestServerHost string `env:"REST_SERVER_HOST,required"`
 	// RestServerPort is the port of the REST server.
 	RestServerPort string `env:"REST_SERVER_PORT,required"`
 }

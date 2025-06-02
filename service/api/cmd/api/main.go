@@ -47,7 +47,7 @@ func main() {
 
 	service := service.New(logger, redisBroker, cfg.SentimentIngestedTopic)
 
-	server, router := rest.New(cfg.RestServerHost, cfg.RestServerPort)
+	server, router := rest.New(cfg.RestServerPort)
 
 	endpoint := endpoint.New(router, service)
 	endpoint.Register()

@@ -80,7 +80,7 @@ func main() {
 		}
 	}()
 
-	server, router := rest.New(cfg.RestServerHost, cfg.RestServerPort)
+	server, router := rest.New(cfg.RestServerPort)
 
 	health.
 		NewHealth(router, logger, db, redisClient).

@@ -1,0 +1,55 @@
+services:
+  redis:
+    image: redis
+    container_name: pipo-redis
+    ports:
+      - 6379:6379
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: pipo-redis-gui
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=redis:redis
+    ports:
+      - 8081:8081
+  api:
+    container_name: pipo-api
+    depends_on:
+      - redis
+    build:
+      context: ../service/api
+      dockerfile: Dockerfile
+    env_file:
+      - ../service/api/.env
+    ports:
+      - 3000:3000
+  worker:
+    container_name: pipo-worker
+    depends_on:
+      worker-db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    build:
+      context: ../service/worker
+      dockerfile: Dockerfile
+    env_file:
+      - ../service/worker/.env
+    ports:
+      - 3001:3001
+  worker-db:
+    image: bitnami/postgresql:latest
+    container_name: pipo-worker-db
+    ports:
+      - "${DATABASE_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=${DATABASE_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 5
+      timeout: 5s
+  
