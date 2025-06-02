@@ -13,34 +13,34 @@ services:
       - REDIS_HOSTS=redis:redis
     ports:
       - 8081:8081
-  api:
-    container_name: pipo-api
+  ingestor:
+    container_name: pipo-ingestor
     depends_on:
       - redis
     build:
-      context: ../service/api
+      context: ../apps/ingestor
       dockerfile: Dockerfile
     env_file:
-      - ../service/api/.env
+      - ../apps/ingestor/.env
     ports:
       - 3000:3000
-  worker:
-    container_name: pipo-worker
+  processor:
+    container_name: pipo-processor
     depends_on:
-      worker-db:
+      processor-db:
         condition: service_healthy
       redis:
         condition: service_started
     build:
-      context: ../service/worker
+      context: ../apps/processor
       dockerfile: Dockerfile
     env_file:
-      - ../service/worker/.env
+      - ../apps/processor/.env
     ports:
       - 3001:3001
-  worker-db:
+  processor-db:
     image: bitnami/postgresql:latest
-    container_name: pipo-worker-db
+    container_name: pipo-processor-db
     ports:
       - "${DATABASE_PORT}:5432"
     environment:

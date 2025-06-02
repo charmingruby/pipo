@@ -1,6 +1,6 @@
 go 1.23.2
 
 use (
-	./service/worker
-	./service/api
+	./apps/ingestor
+	./apps/processor
 )
