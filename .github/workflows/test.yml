@@ -16,8 +16,6 @@ jobs:
             path: service/api
           - name: worker
             path: service/worker
-          - name: lib
-            path: lib
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
