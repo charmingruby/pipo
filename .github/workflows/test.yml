@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         service:
-          - name: api
-            path: service/api
-          - name: worker
-            path: service/worker
+          - name: ingestor
+            path: apps/ingestor
+          - name: processor
+            path: apps/processor
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
