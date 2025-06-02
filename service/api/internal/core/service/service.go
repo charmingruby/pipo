@@ -2,8 +2,8 @@
 package service
 
 import (
-	"github.com/charmingruby/pipo/lib/broker"
-	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo-lib/broker"
+	"github.com/charmingruby/pipo-lib/logger"
 )
 
 // Service is the business logic for the application.

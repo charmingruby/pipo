@@ -6,9 +6,9 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/charmingruby/pipo/lib/broker/redis"
-	"github.com/charmingruby/pipo/lib/http/rest"
-	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo-lib/broker/redis"
+	"github.com/charmingruby/pipo-lib/http/rest"
+	"github.com/charmingruby/pipo-lib/logger"
 	"github.com/charmingruby/pipo/service/api/config"
 	"github.com/charmingruby/pipo/service/api/internal/core/service"
 	"github.com/charmingruby/pipo/service/api/internal/delivery/http/rest/endpoint"

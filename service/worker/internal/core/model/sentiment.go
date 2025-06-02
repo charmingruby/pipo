@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/charmingruby/pipo/lib/core"
+	"github.com/charmingruby/pipo-lib/core"
 )
 
 // Sentiment is the model for the sentiment.

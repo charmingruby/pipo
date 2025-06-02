@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
-	github.com/charmingruby/pipo/lib v0.0.0
+	github.com/charmingruby/pipo-lib v0.1.2
 	github.com/gin-gonic/gin v1.10.1
 	github.com/joho/godotenv v1.5.1
 )
@@ -39,5 +39,3 @@ require (
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/charmingruby/pipo/lib => ../../lib

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/charmingruby/pipo/lib/concurrency"
+	"github.com/charmingruby/pipo-lib/concurrency"
 	"github.com/charmingruby/pipo/service/worker/internal/core/model"
 	"github.com/charmingruby/pipo/service/worker/internal/core/service"
 )

@@ -2,8 +2,8 @@
 package event
 
 import (
-	"github.com/charmingruby/pipo/lib/broker"
-	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo-lib/broker"
+	"github.com/charmingruby/pipo-lib/logger"
 	"github.com/charmingruby/pipo/service/worker/internal/core/service"
 )
 

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/charmingruby/pipo/lib/concurrency"
+	"github.com/charmingruby/pipo-lib/concurrency"
 	"github.com/charmingruby/pipo/service/api/internal/core/model"
 	"github.com/charmingruby/pipo/service/api/pkg/csv"
 )

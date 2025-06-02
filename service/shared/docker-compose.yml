@@ -1,4 +1,12 @@
 services:
+  api:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    env_file:
+      - ../api/.env
+    ports:
+      - 8080:8080
   redis:
     image: redis
     container_name: pipo-redis

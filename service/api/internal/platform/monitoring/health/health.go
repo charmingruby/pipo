@@ -2,8 +2,8 @@
 package health
 
 import (
-	"github.com/charmingruby/pipo/lib/broker/redis"
-	"github.com/charmingruby/pipo/lib/logger"
+	"github.com/charmingruby/pipo-lib/broker/redis"
+	"github.com/charmingruby/pipo-lib/logger"
 	"github.com/gin-gonic/gin"
 )
 
