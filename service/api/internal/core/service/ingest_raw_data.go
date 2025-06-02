@@ -8,24 +8,23 @@ import (
 	"time"
 
 	"github.com/charmingruby/pipo-lib/concurrency"
+	"github.com/charmingruby/pipo/service/api/data"
 	"github.com/charmingruby/pipo/service/api/internal/core/model"
 	"github.com/charmingruby/pipo/service/api/pkg/csv"
 )
 
 // IngestRawDataInput is the input for the IngestRawData function.
 type IngestRawDataInput struct {
-	// FilePath is the path to the file to be ingested.
-	FilePath string
 	// Records is the number of records to be ingested.
 	Records int
 }
 
 // IngestRawDataOutput is the output for the IngestRawData function.
 type IngestRawDataOutput struct {
-	// IngestedData is the data that was ingested.
-	IngestedData []model.RawSentiment
 	// Errors is the errors that occurred during the ingestion.
 	Errors []error
+	// IngestedDataCount is the number of records that were ingested.
+	IngestedDataCount int
 }
 
 // ingestRawDataProcessorInput is the input for the ingestRawDataProcessor function.
@@ -47,7 +46,17 @@ func (s *Service) IngestRawData(
 	ctx context.Context,
 	in IngestRawDataInput,
 ) (IngestRawDataOutput, error) {
-	records, err := csv.ReadFile(in.FilePath, in.Records)
+	file, err := data.SentimentCSV.Open("sentiment_data.csv") // #nosec G304
+	if err != nil {
+		return IngestRawDataOutput{}, err
+	}
+	defer func() {
+		if err := file.Close(); err != nil {
+			s.logger.ErrorContext(ctx, "error closing file", "err", err)
+		}
+	}()
+
+	records, err := csv.ParseFile(file, in.Records)
 	if err != nil {
 		return IngestRawDataOutput{}, err
 	}
@@ -125,7 +134,7 @@ func (s *Service) IngestRawData(
 	)
 
 	return IngestRawDataOutput{
-		IngestedData: ingestedData,
-		Errors:       processingErrors,
+		IngestedDataCount: len(ingestedData),
+		Errors:            processingErrors,
 	}, nil
 }

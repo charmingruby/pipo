@@ -2,28 +2,17 @@ package csv
 
 import (
 	"encoding/csv"
-	"log"
-	"os"
+	"io"
 )
 
-// ReadFile reads a CSV file and returns the records.
+// ParseFile reads a CSV file and returns the records.
 //
-// filePath is the path to the file to be read.
+// reader is the io.Reader containing the CSV data.
 // amountOfRecords is the number of records to be read.
 //
 // Returns the records and an error if one occurs.
-func ReadFile(filePath string, amountOfRecords int) ([][]string, error) {
-	f, err := os.Open(filePath) // #nosec G304
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			log.Print("error closing file", "err", err)
-		}
-	}()
-
-	csvReader := csv.NewReader(f)
+func ParseFile(reader io.Reader, amountOfRecords int) ([][]string, error) {
+	csvReader := csv.NewReader(reader)
 
 	records, err := csvReader.ReadAll()
 	if err != nil {
