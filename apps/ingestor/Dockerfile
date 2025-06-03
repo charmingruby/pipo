@@ -16,7 +16,7 @@ COPY --from=deps /go/pkg /go/pkg
 COPY . .
 
 
-RUN go build -ldflags="-w -s" -o main ./cmd/api/main.go
+RUN go build -ldflags="-w -s" -o main ./cmd/ingestor/main.go
 
 # Final stage: Run the application
 FROM alpine:latest
