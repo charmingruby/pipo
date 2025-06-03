@@ -13,10 +13,12 @@ jobs:
         service:
           - name: ingestor
             image: charmingruby/pipoingestor
-            dockerfile: apps/ingestor/Dockerfile
+            dockerfile: Dockerfile
+            context: apps/ingestor
           - name: processor
             image: charmingruby/pipoprocessor
-            dockerfile: apps/processor/Dockerfile
+            dockerfile: Dockerfile
+            context: apps/processor
 
     steps:
     - name: Checkout Code
@@ -38,7 +40,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
-        context: .
+        context: ${{ matrix.service.context }}
         file: ${{ matrix.service.dockerfile }}
         push: true
         tags: ${{ steps.generate_tag.outputs.tags }}
