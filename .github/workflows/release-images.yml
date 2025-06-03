@@ -9,15 +9,16 @@ jobs:
   release:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         service:
           - name: ingestor
             image: charmingruby/pipoingestor
-            dockerfile: Dockerfile
+            dockerfile: apps/ingestor/Dockerfile
             context: apps/ingestor
           - name: processor
             image: charmingruby/pipoprocessor
-            dockerfile: Dockerfile
+            dockerfile: apps/processor/Dockerfile
             context: apps/processor
 
     steps:
