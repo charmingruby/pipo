@@ -1,12 +1,9 @@
 .PHONY: all setup run clean
 
-all: run
-
-run:
+local:
 	@echo "Starting services..."
 	docker-compose up -d --build
 
-clean:
-	@echo "Cleaning up..."
-	docker-compose down -v
-	@echo "Cleanup complete!"
+cluster:
+	@echo "Starting cluster..."
+	kind create cluster --config ../infra/cluster/config/kind.yml --name=pipo-cluster
