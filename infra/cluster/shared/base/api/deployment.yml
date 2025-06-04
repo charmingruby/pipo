@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podummy
+  namespace: shared
+spec:
+  selector:
+    matchLabels:
+      app: podummy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: podummy
+    spec:
+      containers:
+        - name: podummy
+          image: charmingruby/podummy:blue
+          imagePullPolicy: Always
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 100
+            timeoutSeconds: 1
+            failureThreshold: 0
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
