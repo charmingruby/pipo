@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: redis-broker
+  name: redis-broker-stateful-set
   namespace: shared
 spec:
-  serviceName: redis-broker
+  serviceName: redis-broker-service
   selector:
     matchLabels:
       app: redis-broker
