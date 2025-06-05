@@ -32,7 +32,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 100
             timeoutSeconds: 1
-            failureThreshold: 0
+            failureThreshold: 1
           resources:
             requests:
               cpu: "100m"
