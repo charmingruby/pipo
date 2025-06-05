@@ -1,10 +1,10 @@
 .PHONY: all setup run clean
 
-local:
+run-compose:
 	@echo "Starting services..."
-	docker-compose up -d --build
+	docker-compose up -d
 
-cluster: create-cluster apply
+run-cluster: create-cluster apply
 	
 create-cluster:
 	@echo "Checking if cluster exists..."
@@ -14,6 +14,10 @@ create-cluster:
 	else \
 		echo "Cluster 'pipo-cluster' already exists. Skipping creation."; \
 	fi
+
+delete-cluster:
+	@echo "Deleting cluster..."
+	kind delete cluster --name=pipo-cluster
 
 apply:
 	@echo "Applying resources..."
