@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: podummy
+  name: api
   namespace: shared
 spec:
   selector:
     matchLabels:
-      app: podummy
+      app: api
   replicas: 3
   template:
     metadata:
       labels:
-        app: podummy
+        app: api
     spec:
       containers:
-        - name: podummy
+        - name: api
           image: charmingruby/podummy:blue
           imagePullPolicy: Always
           readinessProbe:

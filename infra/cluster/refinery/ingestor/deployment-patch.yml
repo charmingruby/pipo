@@ -1,0 +1,15 @@
+- op: replace
+  path: /metadata/namespace
+  value: refinery
+- op: replace
+  path: /spec/selector/matchLabels/app
+  value: ingestor-api
+- op: replace
+  path: /spec/template/metadata/labels/app
+  value: ingestor-api
+- op: replace
+  path: /spec/template/spec/containers/0/name
+  value: ingestor-api
+- op: replace
+  path: /spec/template/spec/containers/0/ports/0/containerPort
+  value: 3000
