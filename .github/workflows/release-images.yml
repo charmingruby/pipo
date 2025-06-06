@@ -20,6 +20,10 @@ jobs:
             image: charmingruby/pipoprocessor
             dockerfile: apps/processor/Dockerfile
             context: apps/processor
+          - name: processor-migrator
+            image: charmingruby/pipoprocessormigrator
+            dockerfile: apps/processor/Dockerfile.migrate
+            context: apps/processor
 
     steps:
     - name: Checkout Code
