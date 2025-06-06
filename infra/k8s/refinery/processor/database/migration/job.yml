@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: processor-database-migration-job
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z processor-database-service 5432; do
+                echo "Waiting for Postgres..."
+                sleep 2
+              done
+      containers:
+        - name: migrate
+          image: charmingruby/pipoprocessormigrator:latest
+          envFrom:
+            - configMapRef:
+                name: processor-database-migration-config-map
+            - secretRef:
+                name: processor-database-migration-secret
+          command:
+            - migrate
+            - -path=/migrations
+            - -database=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DB)?sslmode=disable
+            - up
+
+      restartPolicy: Never

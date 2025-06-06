@@ -6,8 +6,8 @@ spec:
   selector:
     matchLabels:
       app: processor-database
-  serviceName: processor-database
-  replicas: 2
+  serviceName: processor-database-service
+  replicas: 1
   template:
     metadata:
       labels:
