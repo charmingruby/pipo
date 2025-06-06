@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: shared
   name: api-deployment
 spec:
   selector:

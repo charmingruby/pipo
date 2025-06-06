@@ -27,9 +27,6 @@ patches:
 ## 2. Create deployment patch
 ```yml
 - op: replace
-  path: /metadata/namespace
-  value: refinery
-- op: replace
   path: /spec/selector/matchLabels/app
   value: processor-api
 - op: replace

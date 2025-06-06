@@ -1,7 +1,4 @@
 - op: replace
-  path: /metadata/namespace
-  value: refinery
-- op: replace
   path: /spec/selector/matchLabels/app
   value: ingestor-api
 - op: replace
@@ -23,6 +20,6 @@
   path: /spec/template/spec/containers/0/envFrom
   value:
     - configMapRef:
-        name: ingestor-config
+        name: ingestor-api-config
     - secretRef:
-        name: ingestor-secret
+        name: ingestor-api-secret
