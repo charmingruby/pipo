@@ -7,19 +7,9 @@ import "github.com/caarlos0/env"
 type Config struct {
 	// RestServerPort is the port of the REST server.
 	RestServerPort string `env:"REST_SERVER_PORT,required"`
-	// DatabaseHost is the host of the database.
-	DatabaseHost string `env:"DATABASE_HOST,required"`
-	// DatabasePort is the port of the database.
-	DatabasePort string `env:"DATABASE_PORT,required"`
-	// DatabaseUser is the user of the database.
-	DatabaseUser string `env:"DATABASE_USER,required"`
-	// DatabasePassword is the password of the database.
-	DatabasePassword string `env:"DATABASE_PASSWORD,required"`
-	// DatabaseName is the name of the database.
-	DatabaseName string `env:"DATABASE_NAME,required"`
-	// DatabaseSSL is the SSL of the database.
-	DatabaseSSL string `env:"DATABASE_SSL,required"`
-	// RedisURL is the URL of the Redis server.
+	// DatabaseURL is the URL of the database.
+	DatabaseURL string `env:"DATABASE_URL,required"`
+	// RedisURL is the URL of the Redis.
 	RedisURL string `env:"REDIS_URL,required"`
 	// SentimentIngestedTopic is the topic of the sentiment ingested.
 	SentimentIngestedTopic string `env:"SENTIMENT_INGESTED_TOPIC,required"`

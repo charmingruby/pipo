@@ -47,14 +47,7 @@ func main() {
 
 	logger.Info("redis broker created")
 
-	db, err := postgres.New(logger, postgres.ConnectionInput{
-		Host:         cfg.DatabaseHost,
-		Port:         cfg.DatabasePort,
-		User:         cfg.DatabaseUser,
-		Password:     cfg.DatabasePassword,
-		DatabaseName: cfg.DatabaseName,
-		SSL:          cfg.DatabaseSSL,
-	})
+	db, err := postgres.New(logger, cfg.DatabaseURL)
 	if err != nil {
 		logger.Error("failed to connect to database", "error", err)
 		os.Exit(1)
