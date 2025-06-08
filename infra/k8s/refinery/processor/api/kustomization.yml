@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - config-map.yml
   - secret.yml
+  - hpa.yml
   - ../../../base/api/deployment
 
 images:
