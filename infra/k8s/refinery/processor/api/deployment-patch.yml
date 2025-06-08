@@ -10,3 +10,16 @@
 - op: replace
   path: /spec/template/spec/containers/0/ports/0/containerPort
   value: 3001
+- op: replace
+  path: /spec/template/spec/containers/0/readinessProbe/httpGet/port
+  value: 3001
+- op: replace
+  path: /spec/template/spec/containers/0/livenessProbe/httpGet/port
+  value: 3001
+- op: add
+  path: /spec/template/spec/containers/0/envFrom
+  value:
+    - configMapRef:
+        name: processor-api-config
+    - secretRef:
+        name: processor-api-secret
