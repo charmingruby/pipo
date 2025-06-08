@@ -13,11 +13,11 @@ const (
 	DefaultComment = "Invalid UTF-8 text"
 
 	// NegativeEmotion is the negative emotion, represented by 0.
-	NegativeEmotion = iota
+	NegativeEmotion = 0
 	// NeutralEmotion is the neutral emotion, represented by 1.
-	NeutralEmotion
+	NeutralEmotion = 1
 	// PositiveEmotion is the positive emotion, represented by 2.
-	PositiveEmotion
+	PositiveEmotion = 2
 )
 
 var (
