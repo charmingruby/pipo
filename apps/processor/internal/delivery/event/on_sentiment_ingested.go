@@ -46,6 +46,8 @@ func (h *Handler) onSentimentIngested() []error {
 	if err := h.broker.Subscribe(context.Background(), h.topics.SentimentIngested, func(message []byte) error {
 		h.logger.Info("received sentiment ingested")
 
+		h.logger.Debug("received sentiment ingested", "message", string(message))
+
 		var rawSentiment model.RawSentiment
 		if err := json.Unmarshal(message, &rawSentiment); err != nil {
 			return err
