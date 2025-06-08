@@ -3,5 +3,6 @@ kind: Kustomization
 namespace: refinery
 resources:
   - namespace.yml
+  - ingress.yml
   - processor
   - ingestor

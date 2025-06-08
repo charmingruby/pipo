@@ -1,4 +1,7 @@
 - op: replace
+  path: /metadata/name
+  value: ingestor-api-deployment
+- op: replace
   path: /spec/selector/matchLabels/app
   value: ingestor-api
 - op: replace

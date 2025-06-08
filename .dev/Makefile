@@ -20,5 +20,18 @@ delete-cluster:
 	kind delete cluster --name=pipo-cluster
 
 apply:
-	@echo "Applying resources..."
-	kubectl apply -k ../infra/k8s
+	@echo "Applying application config manifests..."
+	kubectl apply -k ../infra/k8s/config
+	@echo "Applying application shared manifests..."
+	kubectl apply -k ../infra/k8s/shared
+	@echo "Waiting for ingress-nginx controller pod to be ready..."
+	$(MAKE) wait-for-ingress
+	@echo "Applying application refinery manifests..."
+	kubectl apply -k ../infra/k8s/refinery
+
+wait-for-ingress:
+	@echo "Waiting for ingress-nginx controller pod to be ready..."
+	kubectl wait --namespace ingress-nginx \
+		--for=condition=Ready pod \
+		--selector=app.kubernetes.io/component=controller \
+		--timeout=120s

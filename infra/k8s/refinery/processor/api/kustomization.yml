@@ -5,15 +5,15 @@ resources:
   - secret.yml
   - ../../../shared/base/api/deployment
 
-namePrefix: processor-
-
 images:
   - name: charmingruby/podummy
     newName: charmingruby/pipoprocessor
     newTag: latest
 
 patches:
-  - path: deployment-patch.yml
-    target:
+  - target:
+      group: apps
+      version: v1
       kind: Deployment
       name: api-deployment
+    path: deployment-patch.yml
