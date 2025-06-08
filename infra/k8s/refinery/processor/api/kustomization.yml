@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - config-map.yml
   - secret.yml
-  - ../../../shared/base/api/deployment
+  - ../../../base/api/deployment
 
 images:
   - name: charmingruby/podummy

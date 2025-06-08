@@ -5,7 +5,7 @@ resources:
   - service.yml
   - config-map.yml
   - secret.yml
-  - ../../../shared/base/api/deployment
+  - ../../../base/api/deployment
 
 images:
   - name: charmingruby/podummy
