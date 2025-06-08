@@ -29,7 +29,7 @@ func (h *Handler) onSentimentIngested() []error {
 	go func() {
 		defer wg.Done()
 		for err := range wp.Error() {
-			errors = append(errors, err)
+			h.logger.Error("error processing sentiment ingested", "error", err)
 		}
 	}()
 
