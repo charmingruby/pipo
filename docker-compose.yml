@@ -18,10 +18,10 @@ services:
     depends_on:
       - redis
     build:
-      context: ../apps/ingestor
+      context: ./apps/ingestor
       dockerfile: Dockerfile
     env_file:
-      - ../apps/ingestor/.env
+      - ./apps/ingestor/.env
     ports:
       - 3000:3000
   processor:
@@ -32,10 +32,10 @@ services:
       redis:
         condition: service_started
     build:
-      context: ../apps/processor
+      context: ./apps/processor
       dockerfile: Dockerfile
     env_file:
-      - ../apps/processor/.env
+      - ./apps/processor/.env
     ports:
       - 3001:3001
   processor-db:
