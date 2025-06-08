@@ -44,12 +44,18 @@ func (h *Handler) onSentimentIngested() []error {
 	}()
 
 	if err := h.broker.Subscribe(context.Background(), h.topics.SentimentIngested, func(message []byte) error {
+		h.logger.Info("received sentiment ingested")
+
 		var rawSentiment model.RawSentiment
 		if err := json.Unmarshal(message, &rawSentiment); err != nil {
 			return err
 		}
 
+		h.logger.Info("parsed sentiment ingested", "raw-sentiment-id", rawSentiment.ID)
+
 		batch = append(batch, rawSentiment)
+
+		h.logger.Debug("batch", "batch-size", len(batch))
 
 		if len(batch) >= batchSize {
 			select {
@@ -58,6 +64,8 @@ func (h *Handler) onSentimentIngested() []error {
 			case wp.Input() <- service.ProcessRawDataInput{
 				RawSentiments: batch,
 			}:
+				h.logger.Debug("sent batch new batch")
+
 				batch = make([]model.RawSentiment, 0, batchSize)
 				return nil
 			}
